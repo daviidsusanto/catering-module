@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include catering_module *.css
+recursive-include catering_module *.csv
+recursive-include catering_module *.html
+recursive-include catering_module *.ico
+recursive-include catering_module *.js
+recursive-include catering_module *.json
+recursive-include catering_module *.md
+recursive-include catering_module *.png
+recursive-include catering_module *.py
+recursive-include catering_module *.svg
+recursive-include catering_module *.txt
+recursive-exclude catering_module *.pyc
