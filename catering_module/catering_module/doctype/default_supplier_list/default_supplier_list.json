@@ -1,0 +1,48 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-07-07 12:04:15.587093",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "day",
+  "slot_pengiriman",
+  "default_supplier_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "day",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Day",
+   "options": "Weekdays\nSabtu\nMinggu\nTanggal Merah"
+  },
+  {
+   "fieldname": "slot_pengiriman",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Slot Pengiriman",
+   "options": "Pagi\nSiang\nSore"
+  },
+  {
+   "fieldname": "default_supplier_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Default Supplier Name",
+   "options": "Supplier"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-07-07 12:04:15.587093",
+ "modified_by": "Administrator",
+ "module": "Catering Module",
+ "name": "Default Supplier List",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
