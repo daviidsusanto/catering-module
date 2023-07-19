@@ -652,7 +652,6 @@ class CustomProductionPlan(Document):
 			pass
 
 
-##############################################################################################################################################
 	@frappe.whitelist()
 	def make_material_request_and_po(self):
 		"""Create Material Requests grouped by Sales Order and Material Request Type"""
@@ -793,7 +792,6 @@ class CustomProductionPlan(Document):
 		else:
 			msgprint(_("No material request & purchase order created"))
 
-##############################################################################################################################################
 
 	@frappe.whitelist()
 	def make_material_request(self):
