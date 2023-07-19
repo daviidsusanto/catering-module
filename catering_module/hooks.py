@@ -113,6 +113,13 @@ doctype_js = {
 #		"on_trash": "method"
 #	}
 # }
+doc_events = {
+	"Work Order": {
+		"validate": "catering_module.public.work_order_addon.validate_qty",
+		"after_insert": "catering_module.public.work_order_addon.validate_qty",
+	}
+}
+
 
 # Scheduled Tasks
 # ---------------

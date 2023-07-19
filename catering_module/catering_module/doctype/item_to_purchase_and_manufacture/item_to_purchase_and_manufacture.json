@@ -1,0 +1,75 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-07-11 10:53:39.526753",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_name",
+  "qty_required",
+  "stock_qty_available",
+  "qty_from_stock",
+  "qty_to_manufacture",
+  "qty_to_purchase",
+  "default_supplier"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Name",
+   "options": "Item"
+  },
+  {
+   "fieldname": "stock_qty_available",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Stock Qty Available"
+  },
+  {
+   "fieldname": "qty_from_stock",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty From Stock"
+  },
+  {
+   "fieldname": "qty_to_manufacture",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty to Manufacture"
+  },
+  {
+   "fieldname": "qty_to_purchase",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty to Purchase"
+  },
+  {
+   "fieldname": "default_supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Default Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "qty_required",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty Required"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-07-11 15:16:56.524210",
+ "modified_by": "Administrator",
+ "module": "Catering Module",
+ "name": "Item To Purchase and Manufacture",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

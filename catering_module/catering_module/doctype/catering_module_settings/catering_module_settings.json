@@ -1,53 +1,42 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{warehouse} - {type}",
- "creation": "2023-07-07 12:47:00.259447",
+ "creation": "2023-07-10 20:25:06.271398",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "warehouse",
-  "type",
-  "portion_quantity"
+  "gudang_produksi_portion_quantity",
+  "gudang_item_reserved_for_manufacturing_portion_quantity"
  ],
  "fields": [
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse"
-  },
-  {
-   "fieldname": "type",
-   "fieldtype": "Select",
-   "label": "Type",
-   "options": "Gudang Produksi\nGudang Item Reserved for Manufacturing"
-  },
-  {
-   "fieldname": "portion_quantity",
+   "fieldname": "gudang_produksi_portion_quantity",
    "fieldtype": "Int",
-   "label": "Portion Quantity"
+   "label": "Gudang Produksi Portion Quantity"
+  },
+  {
+   "fieldname": "gudang_item_reserved_for_manufacturing_portion_quantity",
+   "fieldtype": "Int",
+   "label": "Gudang Item Reserved for Manufacturing Portion Quantity"
   }
  ],
  "index_web_pages_for_search": 1,
+ "issingle": 1,
  "links": [],
- "modified": "2023-07-07 12:47:25.340605",
+ "modified": "2023-07-17 10:15:12.495200",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Catering Module Settings",
- "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
    "create": 1,
    "delete": 1,
    "email": 1,
-   "export": 1,
    "print": 1,
    "read": 1,
-   "report": 1,
    "role": "System Manager",
    "share": 1,
    "write": 1

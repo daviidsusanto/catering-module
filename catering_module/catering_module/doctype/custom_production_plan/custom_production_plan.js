@@ -93,17 +93,28 @@ frappe.ui.form.on('Custom Production Plan', {
 					}, __("Status"));
 				}
 
+				// if (frm.doc.po_items && frm.doc.status !== "Closed") {
+				// 	frm.add_custom_button(__("Work Order / Subcontract PO"), ()=> {
+				// 		frm.trigger("make_work_order");
+				// 	}, __('Create'));
+				// }
 				if (frm.doc.po_items && frm.doc.status !== "Closed") {
-					frm.add_custom_button(__("Work Order / Subcontract PO"), ()=> {
+					frm.add_custom_button(__("Work Order"), ()=> {
 						frm.trigger("make_work_order");
 					}, __('Create'));
 				}
-
-				if (frm.doc.mr_items && frm.doc.mr_items.length && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
-					frm.add_custom_button(__("Material Request"), ()=> {
-						frm.trigger("make_material_request");
+				if (frm.doc.mr_items && frm.doc.mr_items.length && !frm.doc.created_wo_and_po && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
+					frm.add_custom_button(__("Material Request & Purchase Order"), ()=> {
+						frm.trigger("make_material_request_and_po");
 					}, __('Create'));
 				}
+
+
+				// if (frm.doc.mr_items && frm.doc.mr_items.length && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
+				// 	frm.add_custom_button(__("Material Request"), ()=> {
+				// 		frm.trigger("make_material_request");
+				// 	}, __('Create'));
+				// }
 			}
 		}
 
@@ -193,6 +204,29 @@ frappe.ui.form.on('Custom Production Plan', {
 		);
 	},
 
+	make_material_request_and_po(frm) {
+
+		frappe.confirm(__("Do you want to create material request and purchase order for raw materials"),
+			function() {
+				frm.events.create_material_request_and_po(frm);
+			},
+			function() {
+				window.close();
+			}
+		);
+	},
+
+	create_material_request_and_po(frm) {
+		frappe.call({
+			method: "make_material_request_and_po",
+			freeze: true,
+			doc: frm.doc,
+			callback: function(r) {
+				frm.reload_doc();
+			}
+		});
+	},
+
 	create_material_request(frm, submit) {
 		frm.doc.submit_material_request = submit;
 
@@ -215,6 +249,20 @@ frappe.ui.form.on('Custom Production Plan', {
 			}
 		});
 	},
+
+	// get_items_to_purchase_and_manufacture(frm) {
+	// 	if (frm.is_dirty()) {
+	// 		frappe.throw("Please Save Document First!");
+	// 	}else{
+	// 		frappe.call({
+	// 			method: "get_item_to_purchase_and_manufacture",
+	// 			doc: frm.doc,
+	// 			callback: function(r) {
+	// 				refresh_field("items_to_purchase_and_manufacture");
+	// 			}
+	// 		});
+	// 	}
+	// },
 
 	get_material_request(frm) {
 		frappe.call({

@@ -44,6 +44,9 @@
   "get_sub_assembly_items",
   "section_break_g4ip",
   "sub_assembly_items",
+  "section_break_te3cm",
+  "get_items_to_purchase_and_manufacture",
+  "items_to_purchase_and_manufacture",
   "download_materials_request_plan_section_section",
   "download_materials_required",
   "material_request_planning",
@@ -61,6 +64,7 @@
   "total_planned_qty",
   "total_produced_qty",
   "column_break_32",
+  "created_wo_and_po",
   "status",
   "warehouses",
   "amended_from"
@@ -424,13 +428,37 @@
    "options": "Custom Production Plan",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_te3cm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "get_items_to_purchase_and_manufacture",
+   "fieldtype": "Button",
+   "hidden": 1,
+   "label": "Get Items to Purchase and Manufacture"
+  },
+  {
+   "fieldname": "items_to_purchase_and_manufacture",
+   "fieldtype": "Table",
+   "hidden": 1,
+   "label": "Items to Purchase and Manufacture",
+   "options": "Item To Purchase and Manufacture"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "created_wo_and_po",
+   "fieldtype": "Check",
+   "label": "Created WO and PO"
   }
  ],
  "icon": "fa fa-calendar",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-07-10 12:43:54.154228",
+ "modified": "2023-07-19 15:23:11.276851",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Custom Production Plan",
