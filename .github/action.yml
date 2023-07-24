@@ -1,0 +1,16 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_dev:
+    name: "dev"
+    runs-on: on-prem
+    steps:
+      - run: docker exec -w /home/frappe/frappe-bench/apps/catering_module erp_backend_dev git pull origin main
+      - run: docker exec erp_backend_dev bench build
+      - run: docker exec erp_backend_dev bench migrate
+      - run: docker restart erp_backend_dev erp_frontend_dev erp_scheduler_dev erp_queue_short_dev erp_queue_long_dev erp_queue_default_dev erp_websocket_dev
