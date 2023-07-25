@@ -12,7 +12,7 @@ frappe.ui.form.on('BOM Item', {
                 callback: function(response) {
                     var data = response.message;
                     var q_factor = data.q_factor;
-                    var q_req = child.qty * (1 + q_factor);
+                    var q_req = child.qty * (1 + (q_factor/100));
                     frappe.model.set_value(cdt, cdn, "qty_required", q_req);
                 }
               });

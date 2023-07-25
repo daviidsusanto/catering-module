@@ -519,6 +519,8 @@ class CustomProductionPlan(Document):
 		# self.make_subcontracted_purchase_order(subcontracted_po, po_list)
 		self.show_list_created_message("Work Order", wo_list)
 		self.show_list_created_message("Purchase Order", po_list)
+		self.created_wo = 1
+		self.save()
 
 		if not wo_list:
 			frappe.msgprint(_("No Work Orders were created"))
@@ -635,6 +637,7 @@ class CustomProductionPlan(Document):
 		wo.update(item)
 		wo.planned_start_date = item.get("planned_start_date") or item.get("schedule_date")
 		wo.skip_transfer = 1
+		wo.status = "Not Started"
 
 		if item.get("warehouse"):
 			wo.fg_warehouse = item.get("warehouse")
@@ -786,7 +789,7 @@ class CustomProductionPlan(Document):
 
 			msgprint(_("{0} created").format(comma_and(material_request_list)))
 			msgprint(_("{0} created").format(comma_and(purchase_order_list)))
-			self.created_wo_and_po = 1
+			self.created_mr_and_po = 1
 			self.save()
 
 		else:
@@ -900,7 +903,8 @@ class CustomProductionPlan(Document):
 	def set_sub_assembly_items_based_on_level(self, row, bom_data, manufacturing_type=None):
 		"Modify bom_data, set additional details."
 		for data in bom_data:
-			data.qty = math.ceil(data.stock_qty)
+			data.qty = data.stock_qty
+			# data.qty = math.ceil(data.stock_qty)
 			data.production_plan_item = row.name
 			data.fg_warehouse = row.warehouse
 			data.schedule_date = row.planned_start_date
@@ -1325,9 +1329,9 @@ def get_material_request_items(
 		return {
 			"item_code": row.item_code,
 			"item_name": row.item_name,
-			"quantity": math.ceil(required_qty / conversion_factor),
+			"quantity": required_qty / conversion_factor,
 			"conversion_factor": conversion_factor,
-			"required_bom_qty": total_qty,
+			"required_bom_qty": math.ceil(total_qty),
 			"stock_uom": row.get("stock_uom"),
 			"warehouse": warehouse
 			or row.get("source_warehouse")
@@ -1725,8 +1729,9 @@ def get_sub_assembly_items(bom_no, bom_data, to_produce_qty, company, warehouse=
 	data = get_bom_children(parent=bom_no)
 	for d in data:
 		if d.expandable:
+			item = frappe.get_doc("Item",d.item_code)
 			parent_item_code = frappe.get_cached_value("BOM", bom_no, "item")
-			stock_qty = (d.stock_qty / d.parent_bom_qty) * flt(to_produce_qty)
+			stock_qty = ((d.stock_qty * ( 1 + (item.q_factor/100)))   / d.parent_bom_qty) * flt(to_produce_qty)
 
 			if warehouse:
 				bin_dict = get_bin_details(d, company, for_warehouse=warehouse)
