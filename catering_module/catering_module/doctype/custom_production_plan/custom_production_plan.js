@@ -98,14 +98,15 @@ frappe.ui.form.on('Custom Production Plan', {
 				// 		frm.trigger("make_work_order");
 				// 	}, __('Create'));
 				// }
-				if (frm.doc.po_items && frm.doc.status !== "Closed") {
-					frm.add_custom_button(__("Work Order"), ()=> {
-						frm.trigger("make_work_order");
-					}, __('Create'));
-				}
-				if (frm.doc.mr_items && frm.doc.mr_items.length && !frm.doc.created_wo_and_po && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
+				if (frm.doc.mr_items && frm.doc.mr_items.length && !frm.doc.created_mr_and_po && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
 					frm.add_custom_button(__("Material Request & Purchase Order"), ()=> {
 						frm.trigger("make_material_request_and_po");
+					}, __('Create'));
+				}
+
+				if (frm.doc.po_items && !frm.doc.created_wo && frm.doc.status !== "Closed") {
+					frm.add_custom_button(__("Work Order"), ()=> {
+						frm.trigger("make_work_order");
 					}, __('Create'));
 				}
 
@@ -118,9 +119,10 @@ frappe.ui.form.on('Custom Production Plan', {
 			}
 		}
 
-		if (frm.doc.status !== "Closed") {
+		if (frm.doc.status !== "Closed" && !frm.doc.created_wo || frm.doc.status !== "Closed" && !frm.doc.created_mr_and_po) {
 			frm.page.set_inner_btn_group_as_primary(__('Create'));
 		}
+		
 		frm.trigger("material_requirement");
 
 		const projected_qty_formula = ` <table class="table table-bordered" style="background-color: var(--scrollbar-track-color);">

@@ -64,7 +64,8 @@
   "total_planned_qty",
   "total_produced_qty",
   "column_break_32",
-  "created_wo_and_po",
+  "created_mr_and_po",
+  "created_wo",
   "status",
   "warehouses",
   "amended_from"
@@ -449,16 +450,25 @@
   {
    "allow_on_submit": 1,
    "default": "0",
-   "fieldname": "created_wo_and_po",
+   "fieldname": "created_mr_and_po",
    "fieldtype": "Check",
-   "label": "Created WO and PO"
+   "label": "Created MR and PO",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "created_wo",
+   "fieldtype": "Check",
+   "label": "Created WO",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-calendar",
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-07-19 15:23:11.276851",
+ "modified": "2023-07-21 12:21:56.594111",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Custom Production Plan",
