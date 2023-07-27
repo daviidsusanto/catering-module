@@ -98,6 +98,7 @@ frappe.ui.form.on('Custom Production Plan', {
 				// 		frm.trigger("make_work_order");
 				// 	}, __('Create'));
 				// }
+				
 				if (frm.doc.mr_items && frm.doc.mr_items.length && !frm.doc.created_mr_and_po && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
 					frm.add_custom_button(__("Material Request & Purchase Order"), ()=> {
 						frm.trigger("make_material_request_and_po");
