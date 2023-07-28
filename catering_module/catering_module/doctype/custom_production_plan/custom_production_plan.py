@@ -903,9 +903,13 @@ class CustomProductionPlan(Document):
 	def set_sub_assembly_items_based_on_level(self, row, bom_data, manufacturing_type=None):
 		"Modify bom_data, set additional details."
 		for data in bom_data:
-			data.qty = data.stock_qty
-			# data.qty = math.ceil(data.stock_qty)
 			data.production_plan_item = row.name
+			rounding_up = frappe.get_value("Item",data.production_item,"kelipatan_rounding_up")
+			x = data.stock_qty / rounding_up
+			x = math.ceil(x)
+			hasil = x * rounding_up
+			# data.qty = data.stock_qty
+			data.qty = hasil
 			data.fg_warehouse = row.warehouse
 			data.schedule_date = row.planned_start_date
 			data.type_of_manufacturing = manufacturing_type or (
