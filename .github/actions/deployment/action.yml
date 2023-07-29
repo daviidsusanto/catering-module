@@ -1,0 +1,32 @@
+name: Docker deployment
+description: Docker deployment for frappe erpnext
+
+inputs:
+  backend_container:
+    description: "ERPNext's backend container name"
+    required: true
+  frontend_container:
+    description: "ERPNext's frontend container name"
+    required: true
+  scheduler_container:
+    description: "ERPNext's scheduler container name"
+    required: true
+  queue_container:
+    description: "ERPNext's default queue container name"
+    required: true
+  queue_short_container:
+    description: "ERPNext's short queue container name"
+    required: true
+  queue_long_container:
+    description: "ERPNext's long queue container name"
+    required: true
+  websocket_container:
+    description: "ERPNext's websocket server container name"
+    required: true
+
+runs:
+  steps:
+    - run: docker exec -w /home/frappe/frappe-bench/apps/catering_module erp_backend_dev git pull upstream main
+    - run: docker exec ${{ inputs.backend_container }} bench build
+    - run: docker exec ${{ inputs.backend_container }} bench migrate
+    - run: docker restart ${{ inputs.backend_container }} ${{ inputs.frontend_container }} ${{ inputs.scheduler_container }} ${{ inputs.queue_short_container}} ${{ inputs.queue_long_container }} ${{ inputs.queue_container }} ${{ inputs.websocket_container }}
