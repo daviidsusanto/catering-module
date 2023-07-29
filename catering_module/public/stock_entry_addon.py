@@ -9,11 +9,20 @@ def validate_qty(doc,name):
             if i.qty_hasil_real > i.qty:
                 i.yields = i.qty_hasil_real / i.qty
                 i.qty_kelebihan = i.qty_hasil_real - i.qty
-            
-            if i.qty_hasil_real < i.qty:
-                yields = i.qty_hasil_real / i.qty
-                frappe.msgprint("<b>Item Name:</b> {}, <b>Yield% :</b> {}, <b>Unfinished Work Order :</b> {}".format(i.item_code,yields,doc.name))
 
+            if i.qty_hasil_real < i.qty:
+                i.yields = i.qty_hasil_real / i.qty
+                unfinished = frappe.db.sql("""
+                    SELECT two.name
+                    FROM `tabWork Order Item` twoi
+                    LEFT JOIN `tabWork Order` two 
+                    ON twoi.parent  = two.name 
+                    WHERE twoi.item_code = %s AND two.status = "Not Started" AND two.slot_pengiriman = %s
+                """,(i.item_code,frappe.get_value("Work Order",{"name":doc.work_order},"slot_pengiriman")))
+                yields = i.qty_hasil_real / i.qty
+                frappe.msgprint("<b>Item Name:</b> {}, <b>Yield% :</b> {}, <b>Unfinished Work Order :</b> {}".format(i.item_code,yields,unfinished))
+    doc.save()
+    
 def auto_create_se_for_kelebihan_qty(doc,name):
     list_items = []
     for i in doc.items:

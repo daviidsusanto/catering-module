@@ -638,6 +638,7 @@ class CustomProductionPlan(Document):
 		wo.planned_start_date = item.get("planned_start_date") or item.get("schedule_date")
 		wo.skip_transfer = 1
 		wo.status = "Not Started"
+		wo.slot_pengiriman = self.slot_pengiriman
 
 		if item.get("warehouse"):
 			wo.fg_warehouse = item.get("warehouse")
@@ -903,9 +904,13 @@ class CustomProductionPlan(Document):
 	def set_sub_assembly_items_based_on_level(self, row, bom_data, manufacturing_type=None):
 		"Modify bom_data, set additional details."
 		for data in bom_data:
-			data.qty = data.stock_qty
-			# data.qty = math.ceil(data.stock_qty)
 			data.production_plan_item = row.name
+			rounding_up = frappe.get_value("Item",data.production_item,"kelipatan_rounding_up")
+			x = data.stock_qty / rounding_up
+			x = math.ceil(x)
+			hasil = x * rounding_up
+			# data.qty = data.stock_qty
+			data.qty = hasil
 			data.fg_warehouse = row.warehouse
 			data.schedule_date = row.planned_start_date
 			data.type_of_manufacturing = manufacturing_type or (
@@ -986,37 +991,6 @@ class CustomProductionPlan(Document):
 	# 			continue
 
 	# 		row.supplier = default_supplier.get(row.production_item)
-
-	def combine_subassembly_items_custom(self, sub_assembly_items_store):
-		"Aggregate if same: Item, Warehouse, Inhouse/Outhouse Manu.g, BOM No."
-		key_wise_data = {}
-		for row in sub_assembly_items_store:
-			key = (
-				row.get("production_item"),
-				row.get("fg_warehouse"),
-				row.get("bom_no"),
-				row.get("type_of_manufacturing")
-			)
-			if key not in key_wise_data:
-				# intialise (item, wh, bom no, man.g type) wise dict
-				key_wise_data[key] = row
-				continue
-
-			existing_row = key_wise_data[key]
-			if existing_row:
-				# if row with same (item, wh, bom no, man.g type) key, merge
-				existing_row.qty += flt(row.qty)
-				existing_row.stock_qty += flt(row.stock_qty)
-				existing_row.bom_level = max(existing_row.bom_level, row.bom_level)
-				continue
-			else:
-				# add row with key
-				key_wise_data[key] = row
-
-		sub_assembly_items_store = [
-			key_wise_data[key] for key in key_wise_data
-		]  # unpack into single level list
-		return sub_assembly_items_store
 
 	def combine_subassembly_items(self, sub_assembly_items_store):
 		"Aggregate if same: Item, Warehouse, Inhouse/Outhouse Manu.g, BOM No."
@@ -1331,7 +1305,7 @@ def get_material_request_items(
 			"item_name": row.item_name,
 			"quantity": required_qty / conversion_factor,
 			"conversion_factor": conversion_factor,
-			"required_bom_qty": math.ceil(total_qty),
+			"required_bom_qty": total_qty,
 			"stock_uom": row.get("stock_uom"),
 			"warehouse": warehouse
 			or row.get("source_warehouse")
@@ -1731,7 +1705,7 @@ def get_sub_assembly_items(bom_no, bom_data, to_produce_qty, company, warehouse=
 		if d.expandable:
 			item = frappe.get_doc("Item",d.item_code)
 			parent_item_code = frappe.get_cached_value("BOM", bom_no, "item")
-			stock_qty = ((d.stock_qty * ( 1 + (item.q_factor/100)))   / d.parent_bom_qty) * flt(to_produce_qty)
+			stock_qty = (d.stock_qty / d.parent_bom_qty) * flt(to_produce_qty)
 
 			if warehouse:
 				bin_dict = get_bin_details(d, company, for_warehouse=warehouse)

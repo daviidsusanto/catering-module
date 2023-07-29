@@ -118,6 +118,9 @@ doc_events = {
 		"validate": "catering_module.public.work_order_addon.validate_qty",
 		"after_insert": "catering_module.public.work_order_addon.validate_qty",
 	},
+	# "BOM": {
+	# 	"validate": "catering_module.public.bom_addon.validate_stock_qty_rounded",
+	# },
 	"Stock Entry": {
 		"on_submit": [
 				"catering_module.public.stock_entry_addon.validate_qty",
