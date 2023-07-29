@@ -1,5 +1,7 @@
 name: Deployment (TEST)
 
+on: workflow_dispatch
+
 jobs:
   deploy:
     name: "Deploy to 'test' server"
