@@ -387,7 +387,7 @@ frappe.ui.form.on('Custom Production Plan', {
 
 	get_items_for_material_requests(frm, warehouses) {
 		frappe.call({
-			method: "erpnext.manufacturing.doctype.production_plan.production_plan.get_items_for_material_requests",
+			method: "catering_module.catering_module.doctype.custom_production_plan.custom_production_plan.get_items_for_material_requests",
 			freeze: true,
 			args: {
 				doc: frm.doc,
