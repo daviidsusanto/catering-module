@@ -25,6 +25,7 @@ inputs:
     required: true
 
 runs:
+  using: "composite"
   steps:
     - run: docker exec -w /home/frappe/frappe-bench/apps/catering_module erp_backend_dev git pull upstream main
       shell: bash
