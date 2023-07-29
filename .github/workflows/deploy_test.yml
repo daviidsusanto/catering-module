@@ -7,7 +7,8 @@ jobs:
     name: "Deploy to 'test' server"
     runs-on: on-prem
     steps:
-      - uses: actions/deployment@main
+      - uses: actions/checkout@v1
+      - uses: ./.github/actions/deployment
         with:
           backend_container: test_backend_dev
           frontend_container: test_frontend_dev

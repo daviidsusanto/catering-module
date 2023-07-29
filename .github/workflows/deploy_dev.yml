@@ -10,7 +10,8 @@ jobs:
     name: "Deploy to 'dev' server"
     runs-on: on-prem
     steps:
-      - uses: actions/deployment@main
+      - uses: actions/checkout@v1
+      - uses: ./.github/actions/deployment
         with:
           backend_container: erp_backend_dev
           frontend_container: erp_frontend_dev
