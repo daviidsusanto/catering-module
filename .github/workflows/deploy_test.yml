@@ -1,0 +1,21 @@
+name: Deployment (DEV)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: "Deploy to 'test' server"
+    runs-on: on-prem
+    steps:
+      - uses: actions/deployment@main
+        with:
+          backend_container: test_backend_dev
+          frontend_container: test_frontend_dev
+          scheduler_container: test_scheduler_dev
+          websocket_container: test_websocket_dev
+          queue_container: test_queue_default_dev
+          queue_long_container: test_queue_long_dev
+          queue_short_container: test_queue_short_dev
