@@ -27,6 +27,10 @@ inputs:
 runs:
   steps:
     - run: docker exec -w /home/frappe/frappe-bench/apps/catering_module erp_backend_dev git pull upstream main
+      shell: bash
     - run: docker exec ${{ inputs.backend_container }} bench build
+      shell: bash
     - run: docker exec ${{ inputs.backend_container }} bench migrate
+      shell: bash
     - run: docker restart ${{ inputs.backend_container }} ${{ inputs.frontend_container }} ${{ inputs.scheduler_container }} ${{ inputs.queue_short_container}} ${{ inputs.queue_long_container }} ${{ inputs.queue_container }} ${{ inputs.websocket_container }}
+      shell: bash
