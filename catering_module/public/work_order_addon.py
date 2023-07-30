@@ -4,9 +4,13 @@ import json
 import math
 
 def validate_qty(doc,name):
-    if doc.required_items:
-        for i in doc.required_items:
-            i.required_qty = math.ceil(i.required_qty)
+	if doc.required_items:
+		for i in doc.required_items:
+			rounding_up = frappe.get_value("Item",i.item_code,"kelipatan_rounding_up")
+			x = i.required_qty / rounding_up
+			x = math.ceil(x)
+			hasil = x * rounding_up
+			i.required_qty = hasil
 
 
 @frappe.whitelist()
