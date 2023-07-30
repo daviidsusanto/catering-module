@@ -1256,6 +1256,10 @@ def get_material_request_items(
 	row, sales_order, company, ignore_existing_ordered_qty, include_safety_stock, warehouse, bin_dict
 ):
 	total_qty = row["qty"]
+	rounding_up = frappe.get_value("Item",row.item_code,"kelipatan_order_quantity")
+	x = total_qty / rounding_up
+	x = math.ceil(x)
+	total_qty = x * rounding_up
 
 	required_qty = 0
 	if ignore_existing_ordered_qty or bin_dict.get("projected_qty", 0) < 0:
@@ -1298,7 +1302,6 @@ def get_material_request_items(
 		conversion_factor = (
 			get_conversion_factor(row.item_code, item_details.purchase_uom).get("conversion_factor") or 1.0
 		)
-
 	if required_qty > 0:
 		return {
 			"item_code": row.item_code,
