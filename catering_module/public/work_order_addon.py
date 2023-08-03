@@ -6,10 +6,11 @@ import math
 def validate_qty(doc,name):
 	if doc.required_items:
 		for i in doc.required_items:
-			rounding_up = frappe.get_value("Item",i.item_code,"kelipatan_rounding_up")
-			x = i.required_qty / rounding_up
+			item = frappe.get_doc("Item",i.item_code)
+			qty_recipe = i.required_qty / (1 + (item.q_factor/100))
+			x = qty_recipe / item.kelipatan_rounding_up
 			x = math.ceil(x)
-			hasil = x * rounding_up
+			hasil = x * item.kelipatan_rounding_up
 			i.required_qty = hasil
 
 
@@ -48,5 +49,15 @@ def make_stock_entry(work_order_id, purpose, qty=None):
 
 	stock_entry.set_stock_entry_type()
 	stock_entry.get_items()
+	if stock_entry.get("items"):
+		for i in stock_entry.items:
+			if i.s_warehouse:
+				item = frappe.get_doc("Item",i.item_code)
+				qty_recipe = i.qty / (1 + (item.q_factor/100))
+				x = qty_recipe / item.kelipatan_rounding_up
+				x = math.ceil(x)
+				hasil = x * item.kelipatan_rounding_up
+				i.qty = hasil
+
 	stock_entry.set_serial_no_batch_for_finished_good()
 	return stock_entry.as_dict()
