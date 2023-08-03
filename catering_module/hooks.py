@@ -163,9 +163,10 @@ doc_events = {
 #	"frappe.desk.doctype.event.event.get_events": "catering_module.event.get_events"
 # }
 
-# override_whitelisted_methods = {
-# 	"erpnext.manufacturing.doctype.work_order.work_order.make_stock_entry": "catering_module.public.work_order_addon.make_stock_entry"
-# }
+override_whitelisted_methods = {
+	"erpnext.manufacturing.doctype.work_order.work_order.make_stock_entry": "catering_module.public.work_order_addon.make_stock_entry"
+}
+
 
 #
 # each overriding function accepts a `data` argument;
