@@ -663,6 +663,19 @@ class CustomProductionPlan(Document):
 		material_request_map = {}
 		item_list = []
 		purchase_orders = []
+		item_not_supplier = []
+		item_l = []
+		for i in self.mr_items:
+			item_l.append(i.item_code)
+		for i in set(item_l):
+			dsl = frappe.get_value("Default Supplier List",{"parent": i,"day":get_tanggal(self.posting_date),"slot_pengiriman": self.slot_pengiriman},"default_supplier_name")
+			if not dsl:
+				item_not_supplier.append(i)
+						
+		if item_not_supplier:
+			frappe.throw("Default Supplier for Item {} is Not Set Please Update On Item Document".format(item_not_supplier))
+			return
+
 		for item in self.mr_items:
 			item_doc = frappe.get_cached_doc("Item", item.item_code)
 			item_list.append(item.item_code)
@@ -717,12 +730,12 @@ class CustomProductionPlan(Document):
 
 
 		frappe.flags.mute_messages = False
-
+		
 		default_supplier = frappe._dict(
 			frappe.get_all(
 				"Default Supplier List",
 				fields=["parent", "default_supplier_name"],
-				filters={"parent": ("in", item_list), "slot_pengiriman": self.slot_pengiriman, "day": "Weekdays"},
+				filters={"parent": ("in", item_list), "slot_pengiriman": self.slot_pengiriman, "day": get_tanggal(self.posting_date)},
 				as_list=1,
 			)
 		)
@@ -1256,10 +1269,6 @@ def get_material_request_items(
 	row, sales_order, company, ignore_existing_ordered_qty, include_safety_stock, warehouse, bin_dict
 ):
 	total_qty = row["qty"]
-	rounding_up = frappe.get_value("Item",row.item_code,"kelipatan_order_quantity")
-	x = total_qty / rounding_up
-	x = math.ceil(x)
-	total_qty = x * rounding_up
 
 	required_qty = 0
 	if ignore_existing_ordered_qty or bin_dict.get("projected_qty", 0) < 0:
@@ -1288,6 +1297,11 @@ def get_material_request_items(
 
 	if include_safety_stock:
 		required_qty += flt(row["safety_stock"])
+
+	rounding_up = frappe.get_value("Item",row.item_code,"kelipatan_order_quantity")
+	x = required_qty / rounding_up
+	x = math.ceil(x)
+	required_qty = x * rounding_up
 
 	item_details = frappe.get_cached_value(
 		"Item", row.item_code, ["purchase_uom", "stock_uom"], as_dict=1
@@ -1846,16 +1860,17 @@ def get_raw_materials_of_sub_assembly_items(
 	return item_details
 
 
-def get_tanggal():
-	current_date = datetime.datetime.now().date()
+def get_tanggal(date):
+	# current_date = datetime.datetime.now().date()
+	current_date = datetime.datetime.strptime(date, '%Y-%m-%d')
 	day_name = current_date.strftime('%A')
 	tanggal_merah = frappe.get_value("Tanggal Merah List", {'parent': datetime.datetime.now().year, 'tanggal': current_date.strftime('%d-%m-%Y')}, "tanggal")
 
 	if day_name in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] and not tanggal_merah:
 		return "Weekdays"
-	elif day_name == "Sabtu" and not tanggal_merah:
+	elif day_name == "Saturday" and not tanggal_merah:
 		return "Sabtu"
-	elif day_name == "Minggu" and not tanggal_merah:
+	elif day_name == "Sunday" and not tanggal_merah:
 		return "Minggu"
 
 	return "Tanggal Merah"
