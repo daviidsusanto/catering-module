@@ -22,8 +22,7 @@ def validate_qty(doc,name):
                     """,(i.item_code,frappe.get_value("Work Order",{"name":doc.work_order},"slot_pengiriman")))
                     yields = i.qty_hasil_real / i.qty
                     frappe.msgprint("<b>Item Name:</b> {}, <b>Yield% :</b> {:.2f}, <b>Unfinished Work Order :</b> {}".format(i.item_code,yields,unfinished))
-            i.basic_rate = i.basic_rate
-        doc.save()
+        # doc.save()
     
 def auto_create_se_for_kelebihan_qty(doc,name):
     if doc.work_order:
