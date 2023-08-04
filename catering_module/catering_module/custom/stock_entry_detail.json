@@ -193,7 +193,7 @@
    "_comments": null,
    "_liked_by": null,
    "_user_tags": null,
-   "creation": "2023-08-04 16:27:58.841229",
+   "creation": "2023-08-04 17:27:01.232552",
    "default_value": null,
    "doc_type": "Stock Entry Detail",
    "docstatus": 0,
@@ -201,7 +201,7 @@
    "field_name": "basic_rate",
    "idx": 0,
    "is_system_generated": 0,
-   "modified": "2023-08-04 16:27:58.841229",
+   "modified": "2023-08-04 17:27:01.232552",
    "modified_by": "Administrator",
    "module": null,
    "name": "Stock Entry Detail-basic_rate-precision",
@@ -209,7 +209,7 @@
    "property": "precision",
    "property_type": "Select",
    "row_name": null,
-   "value": "3"
+   "value": ""
   },
   {
    "_assign": null,
