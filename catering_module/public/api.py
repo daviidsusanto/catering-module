@@ -85,3 +85,74 @@ def generate_unique_strings(num_strings, length):
             yield new_string
 
     return generated_strings
+
+@frappe.whitelist()
+def submit_hasil_jadi_real(no_wo, qty_sistem, qty_real, bahan_baku, barang_jadi, bom_no):
+    check_status_wo = frappe.get_doc("Work Order", no_wo)
+    status_wo = check_status_wo.status
+
+    if status_wo != "Completed" :
+        stock_entry = frappe.new_doc("Stock Entry")
+        stock_entry.posting_date = frappe.utils.today()
+        stock_entry.posting_time = frappe.utils.now()
+        stock_entry.stock_entry_type = "Manufacture"
+        stock_entry.work_order = no_wo
+        stock_entry.from_bom = 1
+        stock_entry.use_multi_level_bom = 0
+        stock_entry.bom_no = bom_no
+        stock_entry.fg_completed_qty = qty_sistem
+
+        data_bahan_baku = bahan_baku
+        for item_data in data_bahan_baku:
+            stock_entry.append("items", {
+                "item_code": item_data["item_code"],
+                "qty": float(item_data["qty"]),
+                "uom": item_data["uom"],
+                "s_warehouse": "Stores - AK",
+                "is_finished_item": 0
+            })
+            stock_entry.append("items", {
+                "item_code": barang_jadi,
+                "qty": float(qty_sistem),
+                "qty_hasil_real": qty_real,
+                "uom": "Gram",
+                "t_warehouse": "Finished Goods - AK",
+                "is_finished_item": 1
+            })
+            
+        stock_entry.save()
+        stock_entry.submit()
+        
+        frappe.response['data'] = stock_entry
+
+    else: 
+        frappe.response['data'] = "WO sudah selesai"
+
+@frappe.whitelist()
+def get_work_orders(tgl_pengiriman, slot_pengiriman):
+    output = []
+    production_plan = frappe.db.get_list("Production Plan", pluck="name", filters=[["delivery_date", "=", tgl_pengiriman]])
+    work_orders = frappe.db.get_list("Work Order", pluck="name", filters=[["production_plan", "in", production_plan]])
+    for wo in work_orders:
+        recipe_data = []
+        work_order = frappe.get_doc("Work Order", wo)
+
+        item_doc = frappe.get_doc("Item", work_order.production_item)
+        
+        if item_doc.item_group == "RMT" or item_doc.item_group == "WIP":
+            for recipe in work_order.required_items :
+                recipe_data.append({
+                   "item_code": recipe.item_code,
+                    "required_qty": recipe.required_qty,
+                }) 
+                
+            output.append({
+                "name": wo,
+                "production_item": work_order.production_item,
+                "qty_to_manufacture": work_order.qty,
+                "bom_no": work_order.bom_no,
+                "items": recipe_data
+                
+            })        
+
+    frappe.response['data'] = output
