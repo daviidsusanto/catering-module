@@ -126,7 +126,10 @@ doc_events = {
 				"catering_module.public.stock_entry_addon.validate_qty",
 				"catering_module.public.stock_entry_addon.auto_create_se_for_kelebihan_qty"
 		] 
-	}
+	},
+	"Sales Invoice": {
+		"validate": "catering_module.public.sales_invoice_addon.change_coa_free_item",
+	},
 }
 
 
