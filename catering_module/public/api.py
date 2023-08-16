@@ -156,3 +156,79 @@ def get_work_orders(tgl_pengiriman, slot_pengiriman):
             })        
 
     frappe.response['data'] = output
+
+
+@frappe.whitelist()
+def create_sales_order(data):
+    if data.get('customer_phone_no'):
+        if not frappe.db.exists("Customer", {"phone_number": data.get('customer_phone_no')}):
+            create_new_cust(data)
+        else:
+            cust = frappe.get_doc("Customer", {"phone_number": data.get('customer_phone_no')})
+            check_address(data, cust)
+
+    return data
+
+
+def create_new_cust(data):
+    cust = frappe.new_doc("Customer")
+    cust.phone_number = data.get('customer_phone_no')
+    cust.customer_name = data.get('customer_name')
+    cust.customer_type = data.get('customer_type')
+    cust.customer_group = data.get('customer_group')
+    if not frappe.db.exists("Territory", data.get('territory')):
+        territory = frappe.new_doc("Territory")
+        territory.territory_name = data.get('territory')
+        territory.save()
+    cust.territory = data.get('territory')
+    cust.save()
+    check_address(data, cust)
+
+
+def check_address(data, cust):
+    address_exist = frappe.get_all(
+        "Address", fields=["*"], filters={"phone": data.get('customer_phone_no'), "address_line1": data.get('address')})
+    if not address_exist:
+        new_address = frappe.new_doc("Address")
+        new_address.address_title = data.get('customer_phone_no')
+        new_address.address_type = "Shipping"
+        new_address.address_line1 = data.get('address')
+        new_address.city = data.get('city')
+        new_address.phone = data.get('customer_phone_no')
+        # new_address.append('links',{
+        #     'link_doctype': 'Customer',
+        #     'link_name': cust.name
+        # })
+        new_address.save()
+        cust.db_set("customer_primary_address", new_address.name, update_modified=False)
+    else:
+        cust.db_set("customer_primary_address", address_exist[0].name, update_modified=False)
+
+def make_so(data):
+    so = frappe.new_doc("Sales Order")
+    so.customer = data.get('customer')
+    so.order_type = "Sales"
+    so.transaction_date = frappe.utils.today()
+    so.address_notes = data.get('address_notes')
+    so.nama_pic_penerima = data.get('nama_pic_penerima')
+    so.no_telepon_pic_penerima = data.get('no_telepon_pic_penerima')
+    so.distribution_point = data.get('distribution_point')
+    so.online_shop_invoice_no = data.get('online_shop_invoice_no')
+    so.slot_pengiriman = data.get('slot_pengiriman')
+    so.delivery_date = data.get('delivery_date')
+    so.jam_pengiriman = data.get('jam_pengiriman')
+    so.order_notes = data.get('order_notes')
+    for i in data.get('custom_design'):
+        so.append('custom_design', {
+            'design_type': i.design_type,
+            'design_file_original': i.design_file_original,
+            'design_file_with_order_data': i.design_file_with_order_data
+        })
+    for j in data.get('order_details'):
+        if not j.is_free_item:
+            so.append('items', {
+                'item_code': j.item_code,
+                'qty': j.qty,
+                'is_free_item': True,
+                })
+    
