@@ -160,14 +160,19 @@ def get_work_orders(tgl_pengiriman, slot_pengiriman):
 
 @frappe.whitelist()
 def create_sales_order(data):
+    output = {}
     if data.get('customer_phone_no'):
         if not frappe.db.exists("Customer", {"phone_number": data.get('customer_phone_no')}):
-            create_new_cust(data)
+            cust = create_new_cust(data)
+            so = make_so(data, cust.name)
         else:
             cust = frappe.get_doc("Customer", {"phone_number": data.get('customer_phone_no')})
             check_address(data, cust)
+            so = make_so(data, cust.name)
 
-    return data
+        output = so
+
+    frappe.response['data'] = output
 
 
 def create_new_cust(data):
@@ -183,6 +188,7 @@ def create_new_cust(data):
     cust.territory = data.get('territory')
     cust.save()
     check_address(data, cust)
+    return cust
 
 
 def check_address(data, cust):
@@ -204,9 +210,10 @@ def check_address(data, cust):
     else:
         cust.db_set("customer_primary_address", address_exist[0].name, update_modified=False)
 
-def make_so(data):
+
+def make_so(data, cust_id):
     so = frappe.new_doc("Sales Order")
-    so.customer = data.get('customer')
+    so.customer = cust_id
     so.order_type = "Sales"
     so.transaction_date = frappe.utils.today()
     so.address_notes = data.get('address_notes')
@@ -218,17 +225,47 @@ def make_so(data):
     so.delivery_date = data.get('delivery_date')
     so.jam_pengiriman = data.get('jam_pengiriman')
     so.order_notes = data.get('order_notes')
-    for i in data.get('custom_design'):
-        so.append('custom_design', {
-            'design_type': i.design_type,
-            'design_file_original': i.design_file_original,
-            'design_file_with_order_data': i.design_file_with_order_data
-        })
-    for j in data.get('order_details'):
-        if not j.is_free_item:
-            so.append('items', {
-                'item_code': j.item_code,
-                'qty': j.qty,
-                'is_free_item': True,
+    if data.get('custom_design'):
+        for i in data.get('custom_design'):
+            so.append('custom_design', {
+                'design_type': i.get('design_type'),
+                'design_file_original': i.get('design_file_original'),
+                'design_file_with_order_data': i.get('design_file_with_order_data')
+            })
+    if data.get('order_details'):
+        for j in data.get('order_details'):
+            if not j.get('is_free_item'):
+                so.append('items', {
+                    'item_code': j.get('item_code'),
+                    'qty': j.get('qty'),
+                    'is_free_item': True,
+                    'rate': 0,
+                    'amount': 0
                 })
-    
+            else:
+                so.append('items', {
+                    'item_code': j.get('item_code'),
+                    'qty': j.get('qty'),
+                    'is_free_item': False,
+                    'rate': j.get('rate')
+                })
+    promotions = frappe.get_all("Promotion Program", fields=["*"])
+    if promotions:
+        for k in promotions:
+            so.append('taxes', {
+                'charge_type': k['type'],
+                'account_head': k['account_head'],
+                'cost_center': k['cost_center'],
+                'description': k['description'],
+                'tax_amount': 15 / 100
+            })
+    # SHIPPING FEE
+    so.append('taxes', {
+        'charge_type': 'Actual',
+        'account_head': '5110.001 - Biaya BBM - AK',
+        'cost_center': 'Main - AK',
+        'description': 'Ongkir',
+        'tax_amount': data.get('ongkir_amount') if data.get('ongkir_amount') else 0
+    })
+    so.save()
+    return so
