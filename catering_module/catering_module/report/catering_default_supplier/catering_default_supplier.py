@@ -3,6 +3,7 @@
 
 import frappe
 from collections import defaultdict
+from frappe import _
 
 def execute(filters=None):
 	if not filters:
@@ -14,79 +15,79 @@ def execute(filters=None):
 def get_columns():
 	return [
 		{
-			"label": ("Nama Item"),
+			"label": _("Nama Item"),
 			"fieldname": "nama_item",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Weekdays Pagi"),
+			"label": _("Weekdays Pagi"),
 			"fieldname": "weekdays_pagi",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Weekdays Siang"),
+			"label": _("Weekdays Siang"),
 			"fieldname": "weekdays_siang",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Weekdays Sore"),
+			"label": _("Weekdays Sore"),
 			"fieldname": "weekdays_sore",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Sabtu Pagi"),
+			"label": _("Sabtu Pagi"),
 			"fieldname": "sabtu_pagi",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Sabtu Siang"),
+			"label": _("Sabtu Siang"),
 			"fieldname": "sabtu_siang",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Sabtu Sore"),
+			"label": _("Sabtu Sore"),
 			"fieldname": "sabtu_sore",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Minggu Pagi"),
+			"label": _("Minggu Pagi"),
 			"fieldname": "minggu_pagi",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Minggu Siang"),
+			"label": _("Minggu Siang"),
 			"fieldname": "minggu_siang",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Minggu Sore"),
+			"label": _("Minggu Sore"),
 			"fieldname": "minggu_sore",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Tanggal Merah Pagi"),
+			"label": _("Tanggal Merah Pagi"),
 			"fieldname": "tanggal_merah_pagi",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Tanggal Merah Siang"),
+			"label": _("Tanggal Merah Siang"),
 			"fieldname": "tanggal_merah_siang",
 			"fieldtype": "Data",
 			"width": 200
 		},
 		{
-			"label": ("Tanggal Merah Sore"),
+			"label": _("Tanggal Merah Sore"),
 			"fieldname": "tanggal_merah_sore",
 			"fieldtype": "Data",
 			"width": 200
@@ -130,7 +131,7 @@ def get_data(filters=None):
 	for nama_item, suppliers in grouped_data.items():
 		item_entry = {'nama_item': nama_item}
 		for slot in ['weekdays_pagi', 'weekdays_siang', 'weekdays_sore', 'sabtu_pagi','sabtu_siang','sabtu_sore','minggu_pagi','minggu_siang','minggu_sore','tanggal_merah_pagi','tanggal_merah_siang','tanggal_merah_sore']:
-			item_entry[slot] = suppliers.get(slot, "")
+			item_entry[slot] = suppliers.get(slot, "-")
 		output.append(item_entry)
 
 	return output
