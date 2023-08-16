@@ -131,7 +131,7 @@ def submit_hasil_jadi_real(no_wo, qty_sistem, qty_real, bahan_baku, barang_jadi,
 @frappe.whitelist()
 def get_work_orders(tgl_pengiriman, slot_pengiriman):
     output = []
-    production_plan = frappe.db.get_list("Production Plan", pluck="name", filters=[["delivery_date", "=", tgl_pengiriman]])
+    production_plan = frappe.db.get_list("Custom Production Plan", pluck="name", filters=[["delivery_date", "=", tgl_pengiriman]])
     work_orders = frappe.db.get_list("Work Order", pluck="name", filters=[["production_plan", "in", production_plan]])
     for wo in work_orders:
         recipe_data = []
