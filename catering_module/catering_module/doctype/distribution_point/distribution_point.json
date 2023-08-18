@@ -9,8 +9,6 @@
  "engine": "InnoDB",
  "field_order": [
   "distribution_name",
-  "latitude",
-  "longitude",
   "address",
   "latlong"
  ],
@@ -19,18 +17,6 @@
    "fieldname": "distribution_name",
    "fieldtype": "Data",
    "label": "Distribution Name"
-  },
-  {
-   "fieldname": "latitude",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Latitude"
-  },
-  {
-   "fieldname": "longitude",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Longitude"
   },
   {
    "fieldname": "address",
@@ -45,7 +31,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-08-10 11:31:16.215028",
+ "modified": "2023-08-18 09:16:35.644970",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Distribution Point",
