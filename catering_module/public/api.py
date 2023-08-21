@@ -163,23 +163,52 @@ def get_work_orders(tgl_pengiriman, slot_pengiriman):
 
     frappe.response['data'] = output
 
-
 @frappe.whitelist()
 def create_sales_order(data):
-    output = {}
-    if data.get('customer_phone_no'):
-        if not frappe.db.exists("Customer", {"phone_number": data.get('customer_phone_no')}):
-            cust = create_new_cust(data)
-            so = make_so(data, cust.name)
-        else:
-            cust = frappe.get_doc("Customer", {"phone_number": data.get('customer_phone_no')})
-            check_address(data, cust)
-            so = make_so(data, cust.name)
-
-        output = so
-
-    frappe.response['data'] = output
-
+    try:
+        output = {}
+        if data.get('customer_phone_no'):
+            if not frappe.db.exists("Customer", {"phone_number": data.get('customer_phone_no')}):
+                cust = create_new_cust(data)
+                so = make_so(data, cust.name)
+            else:
+                cust = frappe.get_doc("Customer", {"phone_number": data.get('customer_phone_no')})
+                check_address(data, cust)
+                so = make_so(data, cust.name)
+            output.update({
+                "sales_order_id": so.name,
+                "creation": so.creation,
+                "customer": so.customer,
+                "customer_name": so.customer_name,
+                "order_type": so.order_type,
+                "transaction_date": so.transaction_date,
+                "delivery_date": so.delivery_date,
+                "slot_pengiriman": so.slot_pengiriman,
+                "jam_pengiriman": so.jam_pengiriman,
+                "online_shop_invoice_no": so.online_shop_invoice_no,
+                "distribution_point": so.distribution_point,
+                "nama_pic_penerima": so.nama_pic_penerima,
+                "no_telepon_pic_penerima": so.no_telepon_pic_penerima,
+                "address_notes": so.address_notes,
+                "order_notes": so.order_notes,
+                "customer_group": so.customer_group,
+                "territory": so.territory,
+                "status": so.status,
+                "delivery_status": so.delivery_status,
+                "total": so.total,
+                "total_taxes_and_charges":so.total_taxes_and_charges,
+                "grand_total": so.grand_total,
+                "custom_design": so.custom_design,
+                "taxes": so.taxes,
+                "items": so.items
+            })
+        frappe.response["code"] = 200
+        frappe.response["message"] = "Success"
+        frappe.response['data'] = output
+    except Exception as e:
+        frappe.response["code"] = 400
+        frappe.response["message"] = "Request Failed"
+        frappe.response["data"] = e
 
 def create_new_cust(data):
     cust = frappe.new_doc("Customer")
@@ -196,7 +225,6 @@ def create_new_cust(data):
     check_address(data, cust)
     return cust
 
-
 def check_address(data, cust):
     address_exist = frappe.get_all(
         "Address", fields=["*"], filters={"phone": data.get('customer_phone_no'), "address_line1": data.get('address')})
@@ -207,15 +235,10 @@ def check_address(data, cust):
         new_address.address_line1 = data.get('address')
         new_address.city = data.get('city')
         new_address.phone = data.get('customer_phone_no')
-        # new_address.append('links',{
-        #     'link_doctype': 'Customer',
-        #     'link_name': cust.name
-        # })
         new_address.save()
         cust.db_set("customer_primary_address", new_address.name, update_modified=False)
     else:
         cust.db_set("customer_primary_address", address_exist[0].name, update_modified=False)
-
 
 def make_so(data, cust_id):
     so = frappe.new_doc("Sales Order")
@@ -240,7 +263,7 @@ def make_so(data, cust_id):
             })
     if data.get('order_details'):
         for j in data.get('order_details'):
-            if not j.get('is_free_item'):
+            if j.get('is_free_item'):
                 so.append('items', {
                     'item_code': j.get('item_code'),
                     'qty': j.get('qty'),
@@ -253,25 +276,22 @@ def make_so(data, cust_id):
                     'item_code': j.get('item_code'),
                     'qty': j.get('qty'),
                     'is_free_item': False,
-                    'rate': j.get('rate')
+                    'rate': j.get('rate'),
+                    'amount': int(j.get('rate')) * int(j.get('qty'))
                 })
-    promotions = frappe.get_all("Promotion Program", fields=["*"])
-    if promotions:
-        for k in promotions:
-            so.append('taxes', {
-                'charge_type': k['type'],
-                'account_head': k['account_head'],
-                'cost_center': k['cost_center'],
-                'description': k['description'],
-                'tax_amount': 15 / 100
-            })
-    # SHIPPING FEE
-    so.append('taxes', {
-        'charge_type': 'Actual',
-        'account_head': '5110.001 - Biaya BBM - AK',
-        'cost_center': 'Main - AK',
-        'description': 'Ongkir',
-        'tax_amount': data.get('ongkir_amount') if data.get('ongkir_amount') else 0
-    })
+    if data.get('promotions'):
+         for k in data.get('promotions'):
+            promotions = frappe.get_all("Promotion Program", fields=["*"], filters={"name": k['description']})
+            if promotions:
+                amount = k['amount']
+                if k['description'].upper() != "ONGKIR":
+                    amount = -(k['amount'])
+                so.append('taxes', {
+                    'charge_type': promotions[0].type,
+                    'account_head': promotions[0].account_head,
+                    'cost_center': promotions[0].cost_center,
+                    'description': promotions[0].description,
+                    'tax_amount': amount
+                })
     so.save()
     return so
