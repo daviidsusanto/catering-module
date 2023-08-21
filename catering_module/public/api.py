@@ -284,8 +284,6 @@ def make_so(data, cust_id):
             promotions = frappe.get_all("Promotion Program", fields=["*"], filters={"name": k['description']})
             if promotions:
                 amount = k['amount']
-                if k['description'].upper() != "ONGKIR":
-                    amount = -(k['amount'])
                 so.append('taxes', {
                     'charge_type': promotions[0].type,
                     'account_head': promotions[0].account_head,
