@@ -129,6 +129,9 @@ doc_events = {
 	},
 	"Sales Invoice": {
 		"validate": "catering_module.public.sales_invoice_addon.change_coa_free_item",
+	},
+	"Purchase Order": {
+		"on_submit": "catering_module.public.purchase_order_addon.send_whatsapp_notif_to_supplier",
 	}
 }
 

@@ -1,0 +1,109 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-08-21 11:11:14.116467",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "google_api_section",
+  "api_key_distance_matrix",
+  "active",
+  "whatsapp_api_section",
+  "oauth_url",
+  "client_id",
+  "client_secret",
+  "grant_type",
+  "column_break_lxql1",
+  "whatsapp_url",
+  "template_id",
+  "active_2"
+ ],
+ "fields": [
+  {
+   "fieldname": "api_key_distance_matrix",
+   "fieldtype": "Data",
+   "label": "API Key Distance Matrix"
+  },
+  {
+   "fieldname": "google_api_section",
+   "fieldtype": "Section Break",
+   "label": "Google API"
+  },
+  {
+   "fieldname": "whatsapp_api_section",
+   "fieldtype": "Section Break",
+   "label": "Whatsapp API"
+  },
+  {
+   "fieldname": "oauth_url",
+   "fieldtype": "Data",
+   "label": "Oauth URL"
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "label": "Client ID"
+  },
+  {
+   "fieldname": "client_secret",
+   "fieldtype": "Data",
+   "label": "Client Secret"
+  },
+  {
+   "fieldname": "grant_type",
+   "fieldtype": "Data",
+   "label": "Grant Type"
+  },
+  {
+   "fieldname": "whatsapp_url",
+   "fieldtype": "Data",
+   "label": "Whatsapp URL"
+  },
+  {
+   "fieldname": "template_id",
+   "fieldtype": "Data",
+   "label": "Template ID"
+  },
+  {
+   "default": "0",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "default": "0",
+   "fieldname": "active_2",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "fieldname": "column_break_lxql1",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2023-08-21 13:00:06.886131",
+ "modified_by": "Administrator",
+ "module": "Catering Module",
+ "name": "API Setup",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
