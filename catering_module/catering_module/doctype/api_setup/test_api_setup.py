@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestGoogleAPISetup(FrappeTestCase):
+class TestAPISetup(FrappeTestCase):
 	pass
