@@ -339,6 +339,7 @@ def make_so(data, cust_id):
     so.delivery_date = data.get('delivery_date')
     so.jam_pengiriman = data.get('jam_pengiriman')
     so.order_notes = data.get('order_notes')
+    so.shipping_address_name = frappe.get_value("Customer", cust_id, "customer_primary_address")
     if data.get('custom_design'):
         for i in data.get('custom_design'):
             so.append('custom_design', {
