@@ -273,6 +273,7 @@ def create_sales_order(data):
                 "distribution_point": so.distribution_point,
                 "nama_pic_penerima": so.nama_pic_penerima,
                 "no_telepon_pic_penerima": so.no_telepon_pic_penerima,
+                "shipping_address_name": so.shipping_address_name,
                 "address_notes": so.address_notes,
                 "order_notes": so.order_notes,
                 "customer_group": so.customer_group,
