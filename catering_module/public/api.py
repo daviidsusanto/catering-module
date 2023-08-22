@@ -2,6 +2,7 @@ import frappe
 import requests
 import random
 import string
+import json
 
 @frappe.whitelist()
 def list_work_order(tgl_pengiriman, slot_pengiriman):
@@ -28,48 +29,131 @@ def list_work_order(tgl_pengiriman, slot_pengiriman):
 
     frappe.response['data'] = output
 
+# @frappe.whitelist()
+# def get_nearest_distribution_point(my_location):
+#     if frappe.db.get_single_value("API Setup", "active"):
+#         try:
+#             base_url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+
+#             distribution_points = frappe.get_list("Distribution Point",fields=["name","latlong","address"])
+            
+#             origins = my_location
+#             destinations = '|'.join(point['latlong'] for point in distribution_points)
+
+#             params = {
+#                 "origins": origins,
+#                 "destinations": destinations,
+#                 "avoid": "tolls",
+#                 "key": frappe.db.get_single_value("API Setup","api_key_distance_matrix")
+#             }
+
+#             response = requests.get(base_url, params=params)
+#             data = response.json()
+
+#             if data.get("status") == "OK":
+#                 elements = data["rows"][0]["elements"]
+#                 min_distance = float('inf')
+#                 nearest_point_index = -1
+
+#                 for i, element in enumerate(elements):
+#                     if element.get("status") == "OK":
+#                         distance = element["distance"]["value"]
+#                         if distance < min_distance:
+#                             min_distance = distance
+#                             nearest_point_index = i
+#                 nearest_point = []
+#                 if nearest_point_index != -1:
+#                     nearest_point.append(distribution_points[nearest_point_index])
+#                     frappe.response["code"] = 200
+#                     frappe.response["message"] = "Success"
+#                     frappe.response["data"] = nearest_point
+#             else:
+#                 frappe.response["code"] = 400
+#                 frappe.response["message"] = "Request Failed"
+#                 frappe.response["data"] = data
+                
+#         except Exception as e:
+#             frappe.response["code"] = 400
+#             frappe.response["message"] = "Request Failed"
+#             frappe.response["data"] = e
+#     else:
+#         frappe.response["code"] = 400
+#         frappe.response["message"] = "Distance Matrix Service not Active, Please Set On API Setup"
+#         frappe.response["data"] = None
+
 @frappe.whitelist()
 def get_nearest_distribution_point(my_location):
     if frappe.db.get_single_value("API Setup", "active"):
         try:
-            base_url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+            base_url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
 
             distribution_points = frappe.get_list("Distribution Point",fields=["name","latlong","address"])
             
-            origins = my_location
-            destinations = '|'.join(point['latlong'] for point in distribution_points)
+            data = {}
+            origins = []
 
-            params = {
-                "origins": origins,
-                "destinations": destinations,
-                "avoid": "tolls",
-                "key": frappe.db.get_single_value("API Setup","api_key_distance_matrix")
+            for origin in distribution_points:
+                latitude_origin, longitude_origin = map(float, origin["latlong"].split(","))
+                origin_data = {
+                        "waypoint": {
+                            "location": {
+                                "latLng": {
+                                    "latitude": latitude_origin,
+                                    "longitude": longitude_origin
+                                }
+                            }
+                        },
+                        "routeModifiers": {"avoidTolls": True}
+                    }
+                origins.append(origin_data)
+
+            data.update({"origins": origins})
+
+            latitude_destination, longitude_destination = map(float, my_location.split(','))
+            destination = {
+                    "destinations": [
+                        {
+                            "waypoint": {
+                                "location": {
+                                    "latLng": {
+                                        "latitude": latitude_destination,
+                                        "longitude": longitude_destination
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            
+            data.update(destination)
+            data.update({
+                "travelMode": "TWO_WHEELER",
+                "routingPreference": "TRAFFIC_AWARE"
+            })
+            headers = {
+                "Content-Type": "application/json",
+                "X-Goog-Api-Key": frappe.db.get_single_value("API Setup","api_key_distance_matrix"),
+                "X-Goog-FieldMask": "originIndex,destinationIndex,duration,distanceMeters,status,condition"
             }
 
-            response = requests.get(base_url, params=params)
-            data = response.json()
+            response = requests.post(base_url, headers=headers, data=json.dumps(data))
+            res = response.json()
+            if res:
+                # Find the item with the lowest distanceMeters value
+                min_distance_item = min(res, key=lambda x: x["distanceMeters"])
 
-            if data.get("status") == "OK":
-                elements = data["rows"][0]["elements"]
-                min_distance = float('inf')
-                nearest_point_index = -1
-
-                for i, element in enumerate(elements):
-                    if element.get("status") == "OK":
-                        distance = element["distance"]["value"]
-                        if distance < min_distance:
-                            min_distance = distance
-                            nearest_point_index = i
-                nearest_point = []
-                if nearest_point_index != -1:
-                    nearest_point.append(distribution_points[nearest_point_index])
-                    frappe.response["code"] = 200
-                    frappe.response["message"] = "Success"
-                    frappe.response["data"] = nearest_point
+                # Retrieve the corresponding origin index
+                origin_index = min_distance_item["originIndex"]
+                origin_latlong = data["origins"][origin_index]["waypoint"]["location"]["latLng"]
+                distribution_nearest = frappe.get_value("Distribution Point",{'latlong': str(origin_latlong['latitude'])+","+str(origin_latlong['longitude'])},["name","latlong","address"],as_dict=1)
+                
+                frappe.response["code"] = 200
+                frappe.response["message"] = "Success"
+                frappe.response["data"] = distribution_nearest
             else:
                 frappe.response["code"] = 400
                 frappe.response["message"] = "Request Failed"
-                frappe.response["data"] = data
+                frappe.response["data"] = None
                 
         except Exception as e:
             frappe.response["code"] = 400
@@ -244,6 +328,7 @@ def make_so(data, cust_id):
     so = frappe.new_doc("Sales Order")
     so.customer = cust_id
     so.order_type = "Sales"
+    so.order_type_2 = "Online Shop"
     so.transaction_date = frappe.utils.today()
     so.address_notes = data.get('address_notes')
     so.nama_pic_penerima = data.get('nama_pic_penerima')
