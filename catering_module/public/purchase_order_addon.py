@@ -43,16 +43,26 @@ def send_whatsapp_notif_to_supplier(doc,name):
             "Content-Type": "application/json",
             "Authorization": "Bearer " + oauth
         }
-
+        
         parameters = ""
         for i in doc.items:
             parameters += "- " + str(i.qty) + " " + i.uom + " " + i.item_code + "\\n"
 
         base_url = setup.whatsapp_url
-
+        phone = frappe.db.sql("""
+                SELECT tcp.phone as phone FROM `tabDynamic Link` tdl
+                    LEFT JOIN `tabContact Phone` tcp
+                    ON tcp.parent = tdl.parent
+                WHERE tdl.link_doctype = 'Supplier' AND tdl.parenttype  = 'Contact' and tdl.link_name = %s
+        """,doc.supplier_name,as_dict=1)
+        phone_number = None
+        if phone:
+            phone_number = phone[0]["phone"]
+        else:
+            frappe.throw("Phone number for this Supplier is not set, cant send whatsapp order to supplier")
         data = {
             "identityId": 1, 
-            "phoneNumber": "081381000322", 
+            "phoneNumber": phone_number, 
             "name": doc.supplier, 
             "templateId": setup.template_id, 
             "parameters": [datetime.strptime(doc.transaction_date,'%Y-%m-%d').strftime('%d-%m-%Y'),parameters]
