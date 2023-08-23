@@ -18,7 +18,15 @@
   "column_break_lxql1",
   "whatsapp_url",
   "template_id",
-  "active_2"
+  "active_2",
+  "promotion_program_api_section",
+  "oauth_url_promotion",
+  "client_id_promotion",
+  "client_secret_promotion",
+  "grant_type_promotion",
+  "section_break_xhbyr",
+  "promotion_url",
+  "active_3"
  ],
  "fields": [
   {
@@ -81,12 +89,52 @@
   {
    "fieldname": "column_break_lxql1",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "promotion_program_api_section",
+   "fieldtype": "Section Break",
+   "label": "Promotion Program API"
+  },
+  {
+   "fieldname": "oauth_url_promotion",
+   "fieldtype": "Data",
+   "label": "Oauth URL Promotion"
+  },
+  {
+   "fieldname": "client_id_promotion",
+   "fieldtype": "Data",
+   "label": "Client ID Promotion"
+  },
+  {
+   "fieldname": "client_secret_promotion",
+   "fieldtype": "Data",
+   "label": "Client Secret Promotion"
+  },
+  {
+   "fieldname": "grant_type_promotion",
+   "fieldtype": "Data",
+   "label": "Grant Type Promotion"
+  },
+  {
+   "default": "0",
+   "fieldname": "active_3",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "fieldname": "section_break_xhbyr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "promotion_url",
+   "fieldtype": "Data",
+   "label": "Promotion URL"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-08-21 13:00:06.886131",
+ "modified": "2023-08-23 16:57:07.142318",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "API Setup",
