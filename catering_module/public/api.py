@@ -287,6 +287,7 @@ def create_sales_order(data):
                 "taxes": so.taxes,
                 "items": so.items
             })
+        del frappe.local.response['exc_type']
         frappe.response["code"] = 200
         frappe.response["message"] = "Success"
         frappe.response['data'] = output
