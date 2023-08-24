@@ -49,7 +49,7 @@ def send_whatsapp_notif_to_supplier(doc,name):
         
         parameters = ""
         for i in doc.items:
-            parameters += "- " + str(i.qty) + " " + i.uom + " " + i.item_code + "\\n"
+            parameters += "- " + str(i.qty) + " " + i.uom + " " + i.item_name + "\\n"
 
         base_url = setup.whatsapp_url
         phone = frappe.db.sql("""
