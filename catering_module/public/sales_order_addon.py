@@ -22,3 +22,10 @@ def generate_barcode_so(doc,name):
                 doc.append("barcode",{
                     "barcode": doc.name + "-" + i
                 })
+
+def override_rate_is_free_item(doc,name):
+    for i in doc.items:
+        if i.is_free_item:
+            i.discount_percentage = 100
+            i.rate = 0
+            i.amount = 0
