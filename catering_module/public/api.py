@@ -351,9 +351,10 @@ def make_so(data, cust_id):
             })
     if data.get('order_details'):
         for j in data.get('order_details'):
+            item_code = frappe.get_value("Item",{"item_name": j.get('item_code')},"item_code")
             if j.get('is_free_item'):
                 so.append('items', {
-                    'item_code': j.get('item_code'),
+                    'item_code': item_code,
                     'qty': j.get('qty'),
                     'is_free_item': True,
                     'rate': 0,
@@ -361,7 +362,7 @@ def make_so(data, cust_id):
                 })
             else:
                 so.append('items', {
-                    'item_code': j.get('item_code'),
+                    'item_code': item_code,
                     'qty': j.get('qty'),
                     'is_free_item': False,
                     'rate': j.get('rate'),
@@ -380,4 +381,5 @@ def make_so(data, cust_id):
                     'tax_amount': amount
                 })
     so.save()
+    so.submit()
     return so
