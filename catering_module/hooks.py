@@ -133,6 +133,9 @@ doc_events = {
 	},
 	"Purchase Order": {
 		"on_submit": "catering_module.public.purchase_order_addon.send_whatsapp_notif_to_supplier",
+	},
+	"Pick List": {
+		"validate": "catering_module.public.pick_list_addon.get_barcode_from_so",
 	}
 }
 
