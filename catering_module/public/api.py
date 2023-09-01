@@ -383,3 +383,21 @@ def make_so(data, cust_id):
     so.save()
     so.submit()
     return so
+
+@frappe.whitelist()
+def item_category_list():
+    try:
+        item_category = frappe.get_all("Catering Item Category", fields=["*"])
+        output = []
+        if item_category:
+            for i in item_category:
+                output.append({
+                    "item_category": i.item_category
+                })
+        frappe.response["code"] = 200
+        frappe.response["message"] = "Success"
+        frappe.response['data'] = output
+    except Exception as e:
+        frappe.response["code"] = 400
+        frappe.response["message"] = "Request Failed"
+        frappe.response["data"] = e
