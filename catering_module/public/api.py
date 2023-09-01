@@ -391,9 +391,7 @@ def item_category_list():
         output = []
         if item_category:
             for i in item_category:
-                output.append({
-                    "item_category": i.item_category
-                })
+                output.append(i.item_category)
         frappe.response["code"] = 200
         frappe.response["message"] = "Success"
         frappe.response['data'] = output
