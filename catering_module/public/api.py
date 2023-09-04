@@ -399,3 +399,99 @@ def item_category_list():
         frappe.response["code"] = 400
         frappe.response["message"] = "Request Failed"
         frappe.response["data"] = e
+
+@frappe.whitelist()
+def submit_wo_kitchen(no_wo, qty_sistem, qty_real, bahan_baku, barang_jadi, bom_no):
+    check_status_wo = frappe.get_doc("Work Order", no_wo)
+    status_wo = check_status_wo.status
+
+    if status_wo != "Completed" :
+        stock_entry = frappe.new_doc("Stock Entry")
+        stock_entry.posting_date = frappe.utils.today()
+        stock_entry.posting_time = frappe.utils.now()
+        stock_entry.stock_entry_type = "Manufacture"
+        stock_entry.work_order = no_wo
+        stock_entry.from_bom = 1
+        stock_entry.use_multi_level_bom = 0
+        stock_entry.bom_no = bom_no
+        stock_entry.fg_completed_qty = qty_sistem
+        stock_entry.from_warehouse = "Finished Goods - SM"
+
+        data_bahan_baku = bahan_baku
+        for item_data in data_bahan_baku:
+            stock_entry.append("items", {
+                "item_code": item_data["item_code"],
+                "qty": float(item_data["qty"]),
+                "uom": item_data["uom"],
+                "s_warehouse": "Stores - SM",
+                "is_finished_item": 0
+            })
+            
+        stock_entry.append("items", {
+            "item_code": barang_jadi,
+            "qty": float(qty_sistem),
+            "qty_hasil_real": float(qty_real),
+            "uom": "Gram",
+            "t_warehouse": "Finished Goods - SM",
+            "is_finished_item": 1
+        })
+            
+        stock_entry.save()
+        stock_entry.submit()
+        
+        frappe.response['data'] = stock_entry
+        
+    else: 
+        frappe.response['message'] = "WO sudah selesai"
+
+@frappe.whitelist()
+def qr_so_packing(nomor_wo):
+    output = []
+    check_so = frappe.db.exists("Sales Order", nomor_so)
+    if check_so :
+        sales_order = frappe.get_doc("Sales Order", nomor_so)
+        orders_data = []
+        for orders in sales_order.items :
+            orders_data.append({
+                "item_code": orders.item_code,
+                "qty": orders.qty,
+            }) 
+                
+        output.append({
+            "name": nomor_so,
+            "customer": sales_order.customer_name,
+            "delivery_date": sales_order.delivery_date,
+            "slot_pengiriman": sales_order.slot_pengiriman,
+            "jam_pengiriman": sales_order.jam_pengiriman,
+            "total_qty": sales_order.total_qty,
+            "data_order" : orders_data
+        })
+        
+        frappe.response['data'] = output
+    else :
+        frappe.response['message'] = "data tidak ada"
+
+@frappe.whitelist()
+def qr_wo_kitchen(nomor_wo):
+    output = []
+    check_wo = frappe.db.exists("Work Order", nomor_wo)
+    if check_wo :
+        work_order = frappe.get_doc("Work Order", nomor_wo)
+        recipe_data = []
+        for recipe in work_order.required_items :
+            recipe_data.append({
+                "item_code": recipe.item_code,
+                "required_qty": recipe.required_qty,
+            }) 
+                
+        output.append({
+            "name": nomor_wo,
+            "production_item": work_order.production_item,
+            "qty_to_manufacture": work_order.qty,
+            "bom_no": work_order.bom_no,
+            "items": recipe_data
+        })
+        
+        frappe.response['data'] = output
+    else :
+        frappe.response['message'] = "data tidak ada"
