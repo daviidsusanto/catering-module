@@ -12,6 +12,7 @@ def validate_qty(doc,name):
 			x = math.ceil(x)
 			hasil = x * item.kelipatan_rounding_up
 			i.required_qty = hasil
+			i.qty_for_print = hasil
 
 
 @frappe.whitelist()
