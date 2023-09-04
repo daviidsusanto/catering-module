@@ -14,14 +14,32 @@ def validate_qty(doc,name):
                 if i.qty_hasil_real < i.qty:
                     i.yields = i.qty_hasil_real / i.qty
                     unfinished = frappe.db.sql("""
-                        SELECT two.name
-                        FROM `tabWork Order Item` twoi
-                        LEFT JOIN `tabWork Order` two 
-                        ON twoi.parent  = two.name 
-                        WHERE twoi.item_code = %s AND two.status = "Not Started" AND two.slot_pengiriman = %s
-                    """,(i.item_code,frappe.get_value("Work Order",{"name":doc.work_order},"slot_pengiriman")))
+                        SELECT  two.name, twoi.item_code, two.bom_no, twoi.name as 'woi_name', twoi.required_qty from `tabWork Order` two 
+                        LEFT JOIN`tabCustom Production Plan` tcpp 
+                        ON two.custom_production_plan  = tcpp.name
+                        LEFT JOIN `tabWork Order Item` twoi 
+                        ON two.name = twoi.parent
+                        WHERE two.custom_production_plan = %s AND two.status = 'Not Started' AND twoi.item_code = %s
+                    """,(frappe.get_value("Work Order",{'name': doc.work_order},'custom_production_plan'),i.item_code), as_dict= 1)
+                    formatted_string = ', '.join(item['name'] for item in unfinished)
                     yields = i.qty_hasil_real / i.qty
-                    frappe.msgprint("<b>Item Name:</b> {}, <b>Yield% :</b> {:.2f}, <b>Unfinished Work Order :</b> {}".format(i.item_code,yields,unfinished))
+                    
+                    for x in unfinished:
+                        percentage_hasil_jadi = 0
+                        bom = frappe.get_doc("BOM", x['bom_no'])
+                        for j in bom.items:
+                            if j.item_code == x['item_code']:
+                                if i.qty_hasil_real < j.qty_recipe:
+                                    percentage_hasil_jadi = i.qty_hasil_real / j.qty_recipe
+                        if percentage_hasil_jadi:
+                            frappe.db.sql(
+                                """UPDATE `tabWork Order Item`
+                                set qty_for_print = %s WHERE name = %s""",
+                                ((x['required_qty'] * percentage_hasil_jadi), x['woi_name']),
+                            )
+                    frappe.msgprint("<b>Item Name:</b> {}, <b>Yield% :</b> {:.2f}, <b>Unfinished Work Order :</b> {}".format(i.item_code,yields,formatted_string))
+
+
         # doc.save()
     
 def auto_create_se_for_kelebihan_qty(doc,name):
