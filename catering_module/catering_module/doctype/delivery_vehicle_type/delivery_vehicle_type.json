@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:vehicle_type",
+ "creation": "2023-09-07 11:37:49.592294",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "vehicle_type",
+  "max_total_item_size",
+  "tip_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Data",
+   "label": "Vehicle Type",
+   "unique": 1
+  },
+  {
+   "fieldname": "max_total_item_size",
+   "fieldtype": "Int",
+   "label": "Max Total Item Size"
+  },
+  {
+   "fieldname": "tip_amount",
+   "fieldtype": "Float",
+   "label": "Tip Amount"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-09-07 11:37:49.592294",
+ "modified_by": "Administrator",
+ "module": "Catering Module",
+ "name": "Delivery Vehicle Type",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
