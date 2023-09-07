@@ -33,7 +33,7 @@ app_license = "MIT"
 doctype_js = {
     "BOM" : "public/js/bom_addon.js",
     "BOM Item" : "public/js/bom_addon.js"
-    }
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -160,6 +160,20 @@ doc_events = {
 #		"catering_module.tasks.monthly"
 #	],
 # }
+
+scheduler_events = {
+    "cron": {
+        "00 01 * * *": [
+            "catering_module.public.biteship_api.schedule_orders"
+        ],
+        "00 02 * * *": [
+            "catering_module.public.biteship_api.schedule_orders"
+        ],
+        "00 03 * * *": [
+            "catering_module.public.biteship_api.schedule_orders"
+        ]
+    }
+}
 
 # Testing
 # -------
