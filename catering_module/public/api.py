@@ -306,7 +306,9 @@ def make_so(data, cust_id):
                     'qty': j.get('qty'),
                     'is_free_item': True,
                     'rate': 0,
-                    'amount': 0
+                    'amount': 0,
+                    'item_category': j.get('item_category'),
+                    'size': j.get('size')
                 })
             else:
                 so.append('items', {
@@ -314,7 +316,9 @@ def make_so(data, cust_id):
                     'qty': j.get('qty'),
                     'is_free_item': False,
                     'rate': j.get('rate'),
-                    'amount': int(j.get('rate')) * int(j.get('qty'))
+                    'amount': int(j.get('rate')) * int(j.get('qty')),
+                    'item_category': j.get('item_category'),
+                    'size': j.get('size')
                 })
     if data.get('promotions'):
          for k in data.get('promotions'):
@@ -393,7 +397,7 @@ def submit_wo_kitchen(no_wo, qty_sistem, qty_real, bahan_baku, barang_jadi, bom_
         frappe.response['message'] = "WO sudah selesai"
 
 @frappe.whitelist()
-def qr_so_packing(nomor_wo):
+def qr_so_packing(nomor_so):
     output = []
     check_so = frappe.db.exists("Sales Order", nomor_so)
     if check_so :
