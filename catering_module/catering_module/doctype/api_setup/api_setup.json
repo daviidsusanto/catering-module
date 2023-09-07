@@ -26,7 +26,12 @@
   "grant_type_promotion",
   "section_break_xhbyr",
   "promotion_url",
-  "active_3"
+  "active_3",
+  "biteship_api_section",
+  "biteship_url",
+  "api_key_biteship",
+  "column_break_vteuk",
+  "active_biteship"
  ],
  "fields": [
   {
@@ -129,12 +134,37 @@
    "fieldname": "promotion_url",
    "fieldtype": "Data",
    "label": "Promotion URL"
+  },
+  {
+   "fieldname": "biteship_api_section",
+   "fieldtype": "Section Break",
+   "label": "Biteship API"
+  },
+  {
+   "fieldname": "biteship_url",
+   "fieldtype": "Data",
+   "label": "Biteship URL"
+  },
+  {
+   "fieldname": "api_key_biteship",
+   "fieldtype": "Small Text",
+   "label": "API Key Biteship"
+  },
+  {
+   "fieldname": "column_break_vteuk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "active_biteship",
+   "fieldtype": "Check",
+   "label": "Active"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-08-23 16:57:07.142318",
+ "modified": "2023-09-05 13:01:22.094398",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "API Setup",
