@@ -29,58 +29,6 @@ def list_work_order(tgl_pengiriman, slot_pengiriman):
 
     frappe.response['data'] = output
 
-# @frappe.whitelist()
-# def get_nearest_distribution_point(my_location):
-#     if frappe.db.get_single_value("API Setup", "active"):
-#         try:
-#             base_url = "https://maps.googleapis.com/maps/api/distancematrix/json"
-
-#             distribution_points = frappe.get_list("Distribution Point",fields=["name","latlong","address"])
-            
-#             origins = my_location
-#             destinations = '|'.join(point['latlong'] for point in distribution_points)
-
-#             params = {
-#                 "origins": origins,
-#                 "destinations": destinations,
-#                 "avoid": "tolls",
-#                 "key": frappe.db.get_single_value("API Setup","api_key_distance_matrix")
-#             }
-
-#             response = requests.get(base_url, params=params)
-#             data = response.json()
-
-#             if data.get("status") == "OK":
-#                 elements = data["rows"][0]["elements"]
-#                 min_distance = float('inf')
-#                 nearest_point_index = -1
-
-#                 for i, element in enumerate(elements):
-#                     if element.get("status") == "OK":
-#                         distance = element["distance"]["value"]
-#                         if distance < min_distance:
-#                             min_distance = distance
-#                             nearest_point_index = i
-#                 nearest_point = []
-#                 if nearest_point_index != -1:
-#                     nearest_point.append(distribution_points[nearest_point_index])
-#                     frappe.response["code"] = 200
-#                     frappe.response["message"] = "Success"
-#                     frappe.response["data"] = nearest_point
-#             else:
-#                 frappe.response["code"] = 400
-#                 frappe.response["message"] = "Request Failed"
-#                 frappe.response["data"] = data
-                
-#         except Exception as e:
-#             frappe.response["code"] = 400
-#             frappe.response["message"] = "Request Failed"
-#             frappe.response["data"] = e
-#     else:
-#         frappe.response["code"] = 400
-#         frappe.response["message"] = "Distance Matrix Service not Active, Please Set On API Setup"
-#         frappe.response["data"] = None
-
 @frappe.whitelist()
 def get_nearest_distribution_point(my_location):
     if frappe.db.get_single_value("API Setup", "active"):
@@ -495,3 +443,7 @@ def qr_wo_kitchen(nomor_wo):
         frappe.response['data'] = output
     else :
         frappe.response['message'] = "data tidak ada"
+
+@frappe.whitelist()
+def check_rates_and_distribution_point(data):
+    pass
