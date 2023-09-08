@@ -125,7 +125,7 @@ def schedule_orders():
                 so.db_set('courier_driver_phone', res.get('courier').get('phone'), update_modified=False, notify=True, commit=True)
                 so.db_set('courier_link', res.get('courier').get('link'), update_modified=False, notify=True, commit=True)
                 so.db_set('biteship_status', res.get('status'), update_modified=False, notify=True, commit=True)
-                so.db_set('shipment_fee', res.get('price'), update_modified=False, notify=True, commit=True)
+                so.db_set('shippment_fee', res.get('price'), update_modified=False, notify=True, commit=True)
             else:
                 logger.info('Error: {}-{}'.format(res.get('error'), res.get('code')))
 

@@ -3,6 +3,9 @@ import requests
 import random
 import string
 import json
+from itertools import groupby
+
+from catering_module.public.biteship_api import base_api
 
 @frappe.whitelist()
 def list_work_order(tgl_pengiriman, slot_pengiriman):
@@ -30,7 +33,7 @@ def list_work_order(tgl_pengiriman, slot_pengiriman):
     frappe.response['data'] = output
 
 @frappe.whitelist()
-def get_nearest_distribution_point(my_location):
+def get_nearest_distribution_point(my_location,travel_mode):
     if frappe.db.get_single_value("API Setup", "active"):
         try:
             base_url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
@@ -75,7 +78,7 @@ def get_nearest_distribution_point(my_location):
             
             data.update(destination)
             data.update({
-                "travelMode": "TWO_WHEELER",
+                "travelMode": travel_mode,
                 "routingPreference": "TRAFFIC_AWARE"
             })
             headers = {
@@ -448,6 +451,165 @@ def qr_wo_kitchen(nomor_wo):
     else :
         frappe.response['message'] = "data tidak ada"
 
+
+def dist_point_check(my_location,travel_mode):
+    base_url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
+
+    distribution_points = frappe.get_list("Distribution Point",fields=["name","latlong","address"])
+    
+    data = {}
+    origins = []
+
+    for origin in distribution_points:
+        latitude_origin, longitude_origin = map(float, origin["latlong"].split(","))
+        origin_data = {
+                "waypoint": {
+                    "location": {
+                        "latLng": {
+                            "latitude": latitude_origin,
+                            "longitude": longitude_origin
+                        }
+                    }
+                },
+                "routeModifiers": {"avoidTolls": True}
+            }
+        origins.append(origin_data)
+
+    data.update({"origins": origins})
+
+    latitude_destination, longitude_destination = map(float, my_location.split(','))
+    destination = {
+            "destinations": [
+                {
+                    "waypoint": {
+                        "location": {
+                            "latLng": {
+                                "latitude": latitude_destination,
+                                "longitude": longitude_destination
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    
+    data.update(destination)
+    data.update({
+        "travelMode": travel_mode,
+        "routingPreference": "TRAFFIC_AWARE"
+    })
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": frappe.db.get_single_value("API Setup","api_key_distance_matrix"),
+        "X-Goog-FieldMask": "originIndex,destinationIndex,duration,distanceMeters,status,condition"
+    }
+
+    distribution_nearest = {}
+    response = requests.post(base_url, headers=headers, data=json.dumps(data))
+    res = response.json()
+    if res:
+        # Find the item with the lowest distanceMeters value
+        min_distance_item = min(res, key=lambda x: x["distanceMeters"])
+
+        # Retrieve the corresponding origin index
+        origin_index = min_distance_item["originIndex"]
+        origin_latlong = data["origins"][origin_index]["waypoint"]["location"]["latLng"]
+        distribution_nearest = frappe.get_value("Distribution Point",{'latlong': str(origin_latlong['latitude'])+","+str(origin_latlong['longitude'])},["name","latlong","address"],as_dict=1)
+    
+    return distribution_nearest
+
 @frappe.whitelist()
-def check_rates_and_distribution_point(data):
-    pass
+def check_rates(data):
+    try:
+        res = {}
+        data_order = {}
+        url = "/v1/rates/couriers"
+        size = 0
+        item_orders = []
+        category = []
+        for i in data.get('order_details'):
+            if i.get("item_category") not in category:
+                category.append(i.get("item_category"))
+            size += int(i.get("size") * i.get("qty"))
+            item_orders.append({
+                "id" : frappe.get_value("Item",{"item_name": i.get("item_code")},"item_code"),
+                "name" : i.get("item_code"),
+                "image" : "",
+                "description" : frappe.get_value("Item", frappe.get_value("Item",{"item_name": i.get("item_code")},"name"), "description"),
+                "value" : i.get("rate") * i.get("qty"),
+                "quantity" : i.get("qty"),
+                "height": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_height"),
+                "length": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_length"),
+                "weight": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_weight"),
+                "width": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_width")
+            })
+        if size <= 20 and "Tumpeng" not in category and "Nampan" not in category:
+            travel_mode = "TWO_WHEELER"
+            type_courier = "instant"
+        else:
+            travel_mode = "DRIVE"
+            type_courier = "instant_car"
+        
+        dist_point = dist_point_check(data.get("latlong"),travel_mode)
+
+        # data_order.update({
+        #     "origin_latitude": dist_point.latlong.split(",")[0],
+        #     "origin_longitude": dist_point.latlong.split(",")[1],
+        #     "destination_latitude": data.get("latlong").split(",")[0],
+        #     "destination_longitude": data.get("latlong").split(",")[1],
+        #     "couriers":"grab",
+        # })
+
+        # data_order.update({
+        #     "items": item_orders
+        #     })
+
+
+        data_order.update({
+            "origin_latitude": -6.2253114,
+            "origin_longitude": 106.7993735,
+            "destination_latitude": -6.28927,
+            "destination_longitude": 106.77492000000007,
+            "couriers":"grab",
+        })
+        data_order.update({
+            "items":[{
+            "id" : "5db7ee67382e185bd6a14608",
+            "name" : "Black L",
+            "image" : "",
+            "description" : "White Shirt",
+            "value" : 165000,
+            "quantity" : 1,
+            "height" : 10,
+            "length" : 10,
+            "weight" : 200,
+            "width" :10
+        }]
+            })
+        
+
+        res = base_api(url, 'POST', json.dumps(data_order))
+        output = {}
+        if res:
+            if res["code"] == 20001009:
+                for i in res["pricing"]:
+                    if type_courier == i["type"]:
+                        output.update({
+                            "price": i["price"],
+                            "type": i["type"],
+                            "service_name" : i["courier_service_name"],
+                            "company": i["company"]
+                        })
+            else:
+                output.update(res)
+
+        frappe.response["code"] = 200
+        frappe.response["http_status_code"] = 200
+        frappe.response["message"] = "success"
+        frappe.response["data"] = output
+        
+    except Exception as e:
+        frappe.response["code"] = 400
+        frappe.response["http_status_code"] = 400
+        frappe.response["message"] = "Request Failed"
+        frappe.response["data"] = e
