@@ -7,7 +7,6 @@ import string
 from itertools import groupby
 
 def generate_barcode_so(doc,name):
-    return
     if doc.total_qty > 0:
         length = 4
         num_strings = math.ceil(int(doc.total_qty) / 10)
