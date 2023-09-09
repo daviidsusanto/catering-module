@@ -89,8 +89,8 @@ def schedule_orders():
                 "shipper_contact_phone":"081277882932", 
                 "shipper_contact_email":"biteship@test.com", 
                 "shipper_organization":"Biteship Org Test", 
-                "origin_contact_name":"Amir", 
-                "origin_contact_phone":"081740781720", 
+                "origin_contact_name": frappe.get_value("Distribution Point", so.distribution_point, "staff_name"), 
+                "origin_contact_phone": frappe.get_value("Distribution Point", so.distribution_point, "staff_phone"), 
                 "origin_address": frappe.get_value("Distribution Point", so.distribution_point, "address"), 
                 "origin_note": "",
                 "origin_coordinate": {
@@ -116,6 +116,7 @@ def schedule_orders():
             })
             logger.info("so_name: {}-{}".format(so.name, data))
             res = base_api(url, 'POST', json.dumps(data, default=defaultconverter))
+            logger.info("res: {}".format(res))
             if res.get('success'):
                 so.db_set('order_id', res.get('id'), update_modified=False, notify=True, commit=True)
                 so.db_set('courier_tracking_id', res.get('courier').get('tracking_id'), update_modified=False, notify=True, commit=True)
