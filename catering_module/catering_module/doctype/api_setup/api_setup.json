@@ -18,6 +18,7 @@
   "column_break_lxql1",
   "whatsapp_url",
   "template_id",
+  "template_id_order",
   "active_2",
   "promotion_program_api_section",
   "oauth_url_promotion",
@@ -159,12 +160,17 @@
    "fieldname": "active_biteship",
    "fieldtype": "Check",
    "label": "Active"
+  },
+  {
+   "fieldname": "template_id_order",
+   "fieldtype": "Data",
+   "label": "Template ID Order"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-09-05 13:01:22.094398",
+ "modified": "2023-09-09 16:32:55.019228",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "API Setup",

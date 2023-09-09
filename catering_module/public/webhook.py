@@ -3,6 +3,8 @@ import requests
 import random
 import string
 import json
+from catering_module.public.whatsapp_api import whatsapp_send_notif_order
+
 
 @frappe.whitelist()
 def biteship_order_hook(
@@ -58,6 +60,16 @@ def biteship_order_hook(
                 sales_order.order_price = order_price
                 sales_order.biteship_status = status
                 sales_order.save()
+                if status == "dropping_off":
+                    whatsapp_send_notif_order(
+                        sales_order.no_telepon_pic_penerima,
+                        sales_order.online_shop_invoice_no,
+                        sales_order.delivery_date.strftime("%d-%m-%Y"),
+                        sales_order.courier_waybill_id,
+                        sales_order.courier_driver_name,
+                        sales_order.courier_driver_phone,
+                        sales_order.courier_link
+                    )
                 frappe.response["code"] = 200
                 frappe.response["message"] = "success"
                 frappe.response["data"] = {'order_id': order_id, 'event': event}
