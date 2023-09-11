@@ -564,7 +564,6 @@ def check_rates(data):
         #     "items": item_orders
         #     })
 
-
         data_order.update({
             "origin_latitude": -6.2253114,
             "origin_longitude": 106.7993735,
@@ -587,7 +586,6 @@ def check_rates(data):
         }]
             })
         
-
         res = base_api(url, 'POST', json.dumps(data_order))
         output = {}
         if res:
