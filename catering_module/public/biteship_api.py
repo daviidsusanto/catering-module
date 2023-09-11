@@ -19,21 +19,24 @@ def base_api(url, type, data=None):
         session.keep_alive = False
 
         setup = frappe.get_doc("API Setup")
-        if setup.biteship_url and setup.api_key_biteship:
-            url = setup.biteship_url + url
-            headers = {
-                "authorization": setup.api_key_biteship,
-                "content-type": "application/json"
-            }
-            # TODO: Handling POST Method
-            if type.upper() == "POST":
-                response = session.post(url, headers=headers, data=data, timeout=50).json()
-                return response
-            elif type.upper() == "GET":
-                response = session.get(url, headers=headers, timeout=10).json()
-                return response
+        if setup.active_biteship:
+            if setup.biteship_url and setup.api_key_biteship:
+                url = setup.biteship_url + url
+                headers = {
+                    "authorization": setup.api_key_biteship,
+                    "content-type": "application/json"
+                }
+                # TODO: Handling POST Method
+                if type.upper() == "POST":
+                    response = session.post(url, headers=headers, data=data, timeout=15).json()
+                    return response
+                elif type.upper() == "GET":
+                    response = session.get(url, headers=headers, timeout=10).json()
+                    return response
+            else:
+                frappe.throw("Please set Biteship API on API Setup")
         else:
-            frappe.throw("Please set Biteship API on API Setup")
+            frappe.throw("Biteship API is not active")
     except Exception as e:
         frappe.db.rollback()
         logger.info("Error: {}".format(traceback.format_exc()))
@@ -50,7 +53,6 @@ def defaultconverter(o):
             return o.__str__()
 
 
-@frappe.whitelist(True)
 def schedule_orders():
     logger = frappe.logger("schedule_orders", allow_site=True, file_count=100)
     res = {}
@@ -58,6 +60,7 @@ def schedule_orders():
     delivery_date_plus_one = datetime.today().date() + timedelta(days=1)
     all_so = frappe.get_all("Sales Order", fields=["*"], filters={
         "delivery_date": delivery_date_plus_one.strftime("%Y-%m-%d"),
+        "order_id": "",
         "biteship_status": ""
     })
     if all_so:
@@ -89,8 +92,8 @@ def schedule_orders():
                 "shipper_contact_phone":"081277882932", 
                 "shipper_contact_email":"biteship@test.com", 
                 "shipper_organization":"Biteship Org Test", 
-                "origin_contact_name":"Amir", 
-                "origin_contact_phone":"081740781720", 
+                "origin_contact_name": frappe.get_value("Distribution Point", so.distribution_point, "staff_name"), 
+                "origin_contact_phone": frappe.get_value("Distribution Point", so.distribution_point, "staff_phone"), 
                 "origin_address": frappe.get_value("Distribution Point", so.distribution_point, "address"), 
                 "origin_note": "",
                 "origin_coordinate": {
@@ -116,6 +119,7 @@ def schedule_orders():
             })
             logger.info("so_name: {}-{}".format(so.name, data))
             res = base_api(url, 'POST', json.dumps(data, default=defaultconverter))
+            logger.info("res: {}".format(res))
             if res.get('success'):
                 so.db_set('order_id', res.get('id'), update_modified=False, notify=True, commit=True)
                 so.db_set('courier_tracking_id', res.get('courier').get('tracking_id'), update_modified=False, notify=True, commit=True)
@@ -130,3 +134,12 @@ def schedule_orders():
                 logger.info('Error: {}-{}'.format(res.get('error'), res.get('code')))
 
     return res
+
+
+@frappe.whitelist(True)
+def enqueue_schedule_orders():
+    return frappe.enqueue("catering_module.public.biteship_api.schedule_orders",
+                queue = 'long',
+                timeout = 7200,
+                is_async = False
+            )
