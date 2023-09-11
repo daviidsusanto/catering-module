@@ -18,3 +18,13 @@ def sign_message():
     frappe.response.display_content_as="inline"
     frappe.response.type="text"
     frappe.response.result=signature
+
+@frappe.whitelist()
+def qz_certificate():
+    b64_private_key = os.environ['QZ_CERTIFICATE']
+    cert = base64.b64decode(b64_private_key)
+    # Create the signature
+    # Echo the signature
+    frappe.response.display_content_as="inline"
+    frappe.response.type="text"
+    frappe.response.result=cert
