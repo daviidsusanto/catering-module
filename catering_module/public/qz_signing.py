@@ -18,7 +18,7 @@ def sign_message():
     frappe.response.display_content_as="inline"
     frappe.response.type="txt"
     frappe.response.doctype="signature"
-    frappe.response.result=signature
+    frappe.response.result=base64.b64encode(signature).decode("ascii")
 
 @frappe.whitelist()
 def qz_certificate():
