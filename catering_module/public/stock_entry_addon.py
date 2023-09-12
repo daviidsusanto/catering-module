@@ -29,8 +29,8 @@ def validate_qty(doc,name):
                         bom = frappe.get_doc("BOM", x['bom_no'])
                         for j in bom.items:
                             if j.item_code == x['item_code']:
-                                if i.qty_hasil_real < j.qty_recipe:
-                                    percentage_hasil_jadi = i.qty_hasil_real / j.qty_recipe
+                                if i.qty_hasil_real < (j.qty_recipe / bom.quantity * doc.fg_completed_qty):
+                                    percentage_hasil_jadi = i.qty_hasil_real / (j.qty_recipe / bom.quantity * doc.fg_completed_qty)
                         if percentage_hasil_jadi:
                             frappe.db.sql(
                                 """UPDATE `tabWork Order Item`
