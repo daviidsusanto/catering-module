@@ -17,6 +17,7 @@ def sign_message():
     # Echo the signature
     frappe.response.display_content_as="inline"
     frappe.response.type="txt"
+    frappe.response.doctype="signature"
     frappe.response.result=signature
 
 @frappe.whitelist()
@@ -28,3 +29,4 @@ def qz_certificate():
     frappe.response.display_content_as="inline"
     frappe.response.type="txt"
     frappe.response.result=cert
+    frappe.response.doctype="certificate"
