@@ -24,18 +24,19 @@ def validate_qty(doc,name):
                     formatted_string = ', '.join(item['name'] for item in unfinished)
                     yields = i.qty_hasil_real / i.qty
                     
+                    qty_required_on_bom = 0
+                    yields_bom = 0
                     for x in unfinished:
-                        percentage_hasil_jadi = 0
-                        bom = frappe.get_doc("BOM", x['bom_no'])
-                        for j in bom.items:
-                            if j.item_code == x['item_code']:
-                                if i.qty_hasil_real < (j.qty_recipe / bom.quantity * doc.fg_completed_qty):
-                                    percentage_hasil_jadi = i.qty_hasil_real / (j.qty_recipe / bom.quantity * doc.fg_completed_qty)
-                        if percentage_hasil_jadi:
+                        qty_required_on_bom += x["required_qty"]
+
+                    yields_bom = i.qty_hasil_real / qty_required_on_bom
+
+                    for y in unfinished:
+                        if yields_bom and i.qty_hasil_real < qty_required_on_bom :
                             frappe.db.sql(
                                 """UPDATE `tabWork Order Item`
                                 set qty_for_print = %s WHERE name = %s""",
-                                ((x['required_qty'] * percentage_hasil_jadi), x['woi_name']),
+                                ((y['required_qty'] * yields_bom), y['woi_name']),
                             )
                     frappe.msgprint("<b>Item Name:</b> {}, <b>Yield% :</b> {:.2f}, <b>Unfinished Work Order :</b> {}".format(i.item_code,yields,formatted_string))
 
