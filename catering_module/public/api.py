@@ -596,7 +596,10 @@ def check_rates(data):
                             "price": i["price"],
                             "type": i["type"],
                             "service_name" : i["courier_service_name"],
-                            "company": i["company"]
+                            "company": i["company"],
+                            "distribution_point": dist_point.name,
+                            "distribution_point_address": dist_point.address,
+                            "distribution_point_latlong": dist_point.latlong
                         })
             else:
                 output.update(res)
