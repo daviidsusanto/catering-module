@@ -13,6 +13,7 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/catering_module/css/catering_module.css"
 # app_include_js = "/assets/catering_module/js/catering_module.js"
+app_include_js = "public/js/qz_printing_addon.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/catering_module/css/catering_module.css"
