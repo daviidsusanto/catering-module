@@ -12,7 +12,6 @@ def validate_qty(doc,name):
                     i.qty_kelebihan = i.qty_hasil_real - i.qty
 
                 if i.qty_hasil_real < i.qty:
-                    i.yields = i.qty_hasil_real / i.qty
                     unfinished = frappe.db.sql("""
                         SELECT  two.name, twoi.item_code, two.bom_no, twoi.name as 'woi_name', twoi.required_qty from `tabWork Order` two 
                         LEFT JOIN`tabCustom Production Plan` tcpp 
@@ -22,7 +21,6 @@ def validate_qty(doc,name):
                         WHERE two.custom_production_plan = %s AND two.status = 'Not Started' AND twoi.item_code = %s
                     """,(frappe.get_value("Work Order",{'name': doc.work_order},'custom_production_plan'),i.item_code), as_dict= 1)
                     formatted_string = ', '.join(item['name'] for item in unfinished)
-                    yields = i.qty_hasil_real / i.qty
                     
                     qty_required_on_bom = 0
                     yields_bom = 0
@@ -38,8 +36,9 @@ def validate_qty(doc,name):
                                 set qty_for_print = %s WHERE name = %s""",
                                 ((y['required_qty'] * yields_bom), y['woi_name']),
                             )
-                    frappe.msgprint("<b>Item Name:</b> {}, <b>Yield% :</b> {:.2f}, <b>Unfinished Work Order :</b> {}".format(i.item_code,yields,formatted_string))
+                    i.yields = yields_bom
 
+                    frappe.msgprint("<b>Item Name:</b> {}, <b>Yield% :</b> {:.2f}, <b>Unfinished Work Order :</b> {}".format(i.item_code,yields_bom,formatted_string))
 
         # doc.save()
     
