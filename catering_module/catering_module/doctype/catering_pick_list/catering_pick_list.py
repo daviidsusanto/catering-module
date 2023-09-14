@@ -28,6 +28,9 @@ class CateringPickList(Document):
 					self.append("barcode_tab",{
 						"barcode": i.barcode
 					})
+			self.append("sales_order_pick_list",{
+				"sales_order": x
+			})
 
 
 @frappe.whitelist()
