@@ -253,6 +253,7 @@ def create_new_cust(data):
     cust.customer_name = data.get('customer_name')
     cust.customer_type = data.get('customer_type')
     cust.customer_group = data.get('customer_group')
+    cust.email = data.get('email')
     if not frappe.db.exists("Territory", data.get('territory')):
         territory = frappe.new_doc("Territory")
         territory.territory_name = data.get('territory')

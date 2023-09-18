@@ -88,10 +88,10 @@ def schedule_orders():
                 "Address", so.shipping_address_name, "latlong") else [0,0]
 
             data.update({
-                "shipper_contact_name": "Amara",
-                "shipper_contact_phone":"081277882932", 
-                "shipper_contact_email":"biteship@test.com", 
-                "shipper_organization":"Biteship Org Test", 
+                "shipper_contact_name": frappe.get_value("Distribution Point", so.distribution_point, "staff_name"),
+                "shipper_contact_phone": frappe.get_value("Distribution Point", so.distribution_point, "staff_phone"), 
+                "shipper_contact_email":"noreply@omara.com", 
+                "shipper_organization": "Omara", 
                 "origin_contact_name": frappe.get_value("Distribution Point", so.distribution_point, "staff_name"), 
                 "origin_contact_phone": frappe.get_value("Distribution Point", so.distribution_point, "staff_phone"), 
                 "origin_address": frappe.get_value("Distribution Point", so.distribution_point, "address"), 
