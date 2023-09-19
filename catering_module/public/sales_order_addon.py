@@ -48,3 +48,5 @@ def override_rate_is_free_item(doc,name):
             i.discount_percentage = 100
             i.rate = 0
             i.amount = 0
+    
+    doc.delivery_date_custom = doc.delivery_date
