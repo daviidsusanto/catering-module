@@ -3,7 +3,6 @@
 
 import frappe
 from frappe.model.document import Document
-
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import add_days, cint, cstr, flt, get_link_to_form, getdate, nowdate, strip_html
 

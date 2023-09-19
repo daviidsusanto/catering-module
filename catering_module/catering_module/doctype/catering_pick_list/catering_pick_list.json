@@ -12,6 +12,10 @@
   "purpose",
   "customer",
   "customer_name",
+  "column_break_cyagd",
+  "delivery_date_custom",
+  "slot_pengiriman",
+  "distribution_point",
   "section_break_15",
   "locations",
   "sales_order_pick_list",
@@ -114,11 +118,34 @@
    "fieldtype": "Table",
    "label": "Sales Order Pick List",
    "options": "Sales Order Pick List"
+  },
+  {
+   "fieldname": "column_break_cyagd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "slot_pengiriman",
+   "fieldtype": "Data",
+   "label": "Slot Pengiriman",
+   "read_only": 1
+  },
+  {
+   "fieldname": "distribution_point",
+   "fieldtype": "Data",
+   "label": "Distribution Point",
+   "read_only": 1
+  },
+  {
+   "fetch_if_empty": 1,
+   "fieldname": "delivery_date_custom",
+   "fieldtype": "Date",
+   "label": "Delivery Date",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2023-09-14 16:04:37.612719",
+ "modified": "2023-09-19 13:36:19.070705",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Catering Pick List",
