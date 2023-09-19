@@ -51,6 +51,7 @@
    "depends_on": "eval:doc.purpose==='Delivery'",
    "fieldname": "customer",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_list_view": 1,
    "label": "Customer",
    "options": "Customer"
@@ -60,6 +61,7 @@
    "fetch_from": "customer.customer_name",
    "fieldname": "customer_name",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Customer Name",
    "read_only": 1
   },
@@ -145,7 +147,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2023-09-19 13:36:19.070705",
+ "modified": "2023-09-19 17:09:33.697708",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Catering Pick List",
