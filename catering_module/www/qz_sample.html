@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<script src="https://cdn.rawgit.com/kjur/jsrsasign/c057d3447b194fa0a3fdcea110579454898e093d/jsrsasign-all-min.js"></script>
+<script type="text/javascript" src="/js/qz-tray.js"></script>
+<script type="text/javascript" src="/js/sample/jquery-1.11.3.min.js"></script>
+<script src="/js/sign-message.js"></script>
+
+<body>
+    
+</body>
+<script>
+    qz.websocket.connect().then(() => {
+        return qz.printers.find("Datamax-O'Neil E-4205A Mark III");
+    }).then((found) => {
+        var config = qz.configs.create(found);
+        var data = [{
+            type: 'pixel',
+            format: 'html',
+            flavor: 'plain',
+            data: '<h1>Hello QZ from JavaScript!</h1>'
+        }];
+        return qz.print(config, data);
+    }).catch((e) => {
+        alert(e);
+    });
+
+    // frappe.call({
+	// 	method: "frappe.www.printview.get_rendered_raw_commands",
+	// 	args: {
+	// 		"doc": doctype,
+	// 		"name": docname,
+	// 		"print_format": print_format,
+	// 	},
+	// 	callback: function (r) {
+	// 		if (!r.exc) {
+	// 			console.log(r.message);
+	// 			var data = [r.message];
+	// 			frappe.ui.form.qz_connect()
+	// 			.then(function () {
+	// 				let config = qz.configs.create(nama_printer);
+	// 				return qz.print(config, data);
+	// 			})
+	// 			.then(frappe.ui.form.qz_success)
+	// 			.catch(err => {
+	// 				frappe.ui.form.qz_fail(err);
+	// 			});
+	// 		}
+	// 	},
+	// });
+</script>
+<script>
+    qz.security.setCertificatePromise(function(resolve, reject) {
+        fetch("http://dev-erpnext.amarakitchen.work:2052/api/method/catering_module.public.qz_signing.qz_certificate", {
+            method: 'POST',
+            headers: {
+                'Authorization': 'token 5e51c01b702e376:72edc7ad1f72fe5',
+            },
+            cache: 'no-store',
+        })
+        .then(function(response) {
+            if (response.ok) {
+                return response.text();
+            } else {
+                reject('Failed to fetch certificate');
+            }
+        })
+        .then(function(data) {
+            resolve(data);
+        })
+        .catch(function(error) {
+            reject(error);
+        });
+    });
+
+    qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
+    qz.security.setSignaturePromise(function(toSign) {
+        return function(resolve, reject) {
+            fetch("http://dev-erpnext.amarakitchen.work:2052/api/method/catering_module.public.qz_signing.sign_message?message=" + toSign, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'token 5e51c01b702e376:72edc7ad1f72fe5',
+                },
+                cache: 'no-store',
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    reject('Failed to fetch signature');
+                }
+            })
+            .then(function(data) {
+                resolve(data);
+            })
+            .catch(function(error) {
+                reject(error);
+            });
+        };
+    });
+
+</script>
+</html>
