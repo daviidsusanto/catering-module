@@ -19,40 +19,56 @@
         return qz.printers.find("Datamax-O'Neil E-4205A Mark III");
     }).then((found) => {
         var config = qz.configs.create(found);
-        var data = [{
-            type: 'pixel',
-            format: 'html',
-            flavor: 'plain',
-            data: '<h1>Hello QZ from JavaScript!</h1>'
-        }];
-        return qz.print(config, data);
+        $.ajax({
+            method: "GET",
+            url: "/",
+            data: {
+                cmd: "frappe.www.printview.get_rendered_raw_commands",
+                doc: "Sales Order",
+                name: "SAL-ORD-2023-00023",
+                print_format: "Sticker Master Box",
+            },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                var data2 = [data.message];
+            },
+        });
+
+        // var data = [{
+        //     type: 'pixel',
+        //     format: 'html',
+        //     flavor: 'plain',
+        //     data: '<h1>Hello QZ from JavaScript!</h1>'
+        // }];
+        return qz.print(config, data2);
     }).catch((e) => {
         alert(e);
     });
 
-    // frappe.call({
-	// 	method: "frappe.www.printview.get_rendered_raw_commands",
-	// 	args: {
-	// 		"doc": doctype,
-	// 		"name": docname,
-	// 		"print_format": print_format,
-	// 	},
-	// 	callback: function (r) {
-	// 		if (!r.exc) {
-	// 			console.log(r.message);
-	// 			var data = [r.message];
-	// 			frappe.ui.form.qz_connect()
-	// 			.then(function () {
-	// 				let config = qz.configs.create(nama_printer);
-	// 				return qz.print(config, data);
-	// 			})
-	// 			.then(frappe.ui.form.qz_success)
-	// 			.catch(err => {
-	// 				frappe.ui.form.qz_fail(err);
-	// 			});
-	// 		}
-	// 	},
-	// });
+    frappe.call({
+		method: "frappe.www.printview.get_rendered_raw_commands",
+		args: {
+			"doc": doctype,
+			"name": docname,
+			"print_format": print_format,
+		},
+		callback: function (r) {
+			if (!r.exc) {
+				console.log(r.message);
+				var data = [r.message];
+				frappe.ui.form.qz_connect()
+				.then(function () {
+					let config = qz.configs.create(nama_printer);
+					return qz.print(config, data);
+				})
+				.then(frappe.ui.form.qz_success)
+				.catch(err => {
+					frappe.ui.form.qz_fail(err);
+				});
+			}
+		},
+	});
 </script>
 <script>
     qz.security.setCertificatePromise(function(resolve, reject) {
