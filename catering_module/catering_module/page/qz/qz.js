@@ -20,63 +20,66 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
       if (!r.exc) {
         console.log(r.message);
         var data = [r.message];
-        qz.security.setCertificatePromise(function (resolve, reject) {
-          fetch(
-            "http://dev-erpnext.amarakitchen.work:2052/api/method/catering_module.public.qz_signing.qz_certificate",
-            {
-              method: "POST",
-              headers: {
-                Authorization: "token 5e51c01b702e376:72edc7ad1f72fe5",
-              },
-              cache: "no-store",
-            }
-          )
-            .then(function (response) {
-              if (response.ok) {
-                return response.text();
-              } else {
-                reject("Failed to fetch certificate");
-              }
-            })
-            .then(function (data) {
-              resolve(data);
-            })
-            .catch(function (error) {
-              reject(error);
-            });
-        });
-
-        // qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
-        qz.security.setSignaturePromise(function (toSign) {
-          return function (resolve, reject) {
-            fetch(
-              "http://dev-erpnext.amarakitchen.work:2052/api/method/catering_module.public.qz_signing.sign_message?message=" +
-                toSign,
-              {
-                method: "POST",
-                headers: {
-                  Authorization: "token 5e51c01b702e376:72edc7ad1f72fe5",
-                },
-                cache: "no-store",
-              }
-            )
-              .then(function (response) {
-                if (response.ok) {
-                  return response.text();
-                } else {
-                  reject("Failed to fetch signature");
-                }
-              })
-              .then(function (data) {
-                resolve(data);
-              })
-              .catch(function (error) {
-                reject(error);
-              });
-          };
-        });
         frappe.ui.form
-          .qz_connect()
+          .qz_init()
+          .then(function () {
+            qz.security.setCertificatePromise(function (resolve, reject) {
+              fetch(
+                "http://dev-erpnext.amarakitchen.work:2052/api/method/catering_module.public.qz_signing.qz_certificate",
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: "token 5e51c01b702e376:72edc7ad1f72fe5",
+                  },
+                  cache: "no-store",
+                }
+              )
+                .then(function (response) {
+                  if (response.ok) {
+                    return response.text();
+                  } else {
+                    reject("Failed to fetch certificate");
+                  }
+                })
+                .then(function (data) {
+                  resolve(data);
+                })
+                .catch(function (error) {
+                  reject(error);
+                });
+            });
+
+            // qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
+            qz.security.setSignaturePromise(function (toSign) {
+              return function (resolve, reject) {
+                fetch(
+                  "http://dev-erpnext.amarakitchen.work:2052/api/method/catering_module.public.qz_signing.sign_message?message=" +
+                    toSign,
+                  {
+                    method: "POST",
+                    headers: {
+                      Authorization: "token 5e51c01b702e376:72edc7ad1f72fe5",
+                    },
+                    cache: "no-store",
+                  }
+                )
+                  .then(function (response) {
+                    if (response.ok) {
+                      return response.text();
+                    } else {
+                      reject("Failed to fetch signature");
+                    }
+                  })
+                  .then(function (data) {
+                    resolve(data);
+                  })
+                  .catch(function (error) {
+                    reject(error);
+                  });
+              };
+            });
+            return qz.connect();
+          })
           .then(function () {
             let config = qz.configs.create(nama_printer);
             return qz.print(config, data);
