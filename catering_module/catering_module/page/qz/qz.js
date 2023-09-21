@@ -78,7 +78,8 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
                   });
               };
             });
-            return qz.connect();
+
+            return qz.websocket.connect();
           })
           .then(function () {
             let config = qz.configs.create(nama_printer);
