@@ -23,20 +23,21 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
         frappe.ui.form
           .qz_init()
           .then(function () {
-            qz.security.setCertificatePromise(function (resolve, reject) {
+            qz.security.setCertificatePromise(
               frappe.call({
                 method: "catering_module.public.qz_signing.qz_certificate",
                 success: resolve,
                 error: reject,
-              });
-            });
+              })
+            );
 
             // qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
             qz.security.setSignaturePromise(function (toSign) {
               return function (resolve, reject) {
                 frappe.call({
-                  method: "catering_module.public.qz_signing.sign_message",
-                  args: { message: toSign },
+                  url:
+                    "/api/method/catering_module.public.qz_signing.sign_message?message=" +
+                    toSign,
                   success: resolve,
                   error: reject,
                 });
