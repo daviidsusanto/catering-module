@@ -10,7 +10,8 @@
  "field_order": [
   "distribution_name",
   "address",
-  "latlong",
+  "gps_lat_distribution_point",
+  "gps_long_distribution_point",
   "staff_name",
   "staff_phone"
  ],
@@ -18,7 +19,9 @@
   {
    "fieldname": "distribution_name",
    "fieldtype": "Data",
-   "label": "Distribution Name"
+   "in_list_view": 1,
+   "label": "Distribution Name",
+   "reqd": 1
   },
   {
    "fieldname": "address",
@@ -26,24 +29,36 @@
    "label": "Address"
   },
   {
-   "fieldname": "latlong",
-   "fieldtype": "Data",
-   "label": "Latlong"
-  },
-  {
    "fieldname": "staff_name",
    "fieldtype": "Data",
-   "label": "Staff Name"
+   "in_list_view": 1,
+   "label": "Staff Name",
+   "reqd": 1
   },
   {
    "fieldname": "staff_phone",
    "fieldtype": "Data",
-   "label": "Staff Phone"
+   "label": "Staff Phone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "gps_lat_distribution_point",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "GPS Lat Distribution Point",
+   "reqd": 1
+  },
+  {
+   "fieldname": "gps_long_distribution_point",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "GPS Long Distribution Point",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-07 16:36:08.315307",
+ "modified": "2023-09-21 12:09:00.495593",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Distribution Point",

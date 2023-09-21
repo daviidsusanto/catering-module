@@ -82,23 +82,18 @@ def schedule_orders():
                     "width": frappe.get_value("Catering Masterbox", item.item_category, "dimension_width")
                 })
 
-            origin_latitude, origin_longitude = frappe.get_value("Distribution Point", so.distribution_point, "latlong").split(',') if frappe.get_value(
-                "Distribution Point", so.distribution_point, "latlong") else [0,0]
-            destination_latitude, destination_longitude = frappe.get_value("Address", so.shipping_address_name, "latlong").split(',') if frappe.get_value(
-                "Address", so.shipping_address_name, "latlong") else [0,0]
-
             data.update({
                 "shipper_contact_name": frappe.get_value("Distribution Point", so.distribution_point, "staff_name"),
                 "shipper_contact_phone": frappe.get_value("Distribution Point", so.distribution_point, "staff_phone"), 
-                "shipper_contact_email":"noreply@omara.com", 
+                "shipper_contact_email":"omara@amarakitchen.com", 
                 "shipper_organization": "Omara", 
                 "origin_contact_name": frappe.get_value("Distribution Point", so.distribution_point, "staff_name"), 
                 "origin_contact_phone": frappe.get_value("Distribution Point", so.distribution_point, "staff_phone"), 
                 "origin_address": frappe.get_value("Distribution Point", so.distribution_point, "address"), 
                 "origin_note": "",
                 "origin_coordinate": {
-                    "latitude": float(origin_latitude),
-                    "longitude": float(origin_longitude)
+                    "latitude": float(frappe.get_value("Distribution Point", so.distribution_point, "gps_lat_distribution_point")),
+                    "longitude": float(frappe.get_value("Distribution Point", so.distribution_point, "gps_long_distribution_point"))
                 },
                 "destination_contact_name": so.nama_pic_penerima, 
                 "destination_contact_phone": so.no_telepon_pic_penerima,
@@ -106,8 +101,8 @@ def schedule_orders():
                 "destination_address": frappe.get_value("Address", so.shipping_address_name, "address_line1"), 
                 "destination_note": so.address_notes,
                 "destination_coordinate":{
-                    "latitude": float(destination_latitude), 
-                    "longitude": float(destination_longitude)
+                    "latitude": float(frappe.get_value("Address", so.shipping_address_name, "gps_lat_customer")), 
+                    "longitude": float(frappe.get_value("Address", so.shipping_address_name, "gps_long_customer"))
                 },
                 "courier_company": "grab",
                 "courier_type": so.courier_type,
