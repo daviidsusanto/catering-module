@@ -17,6 +17,7 @@ def sign_message():
     # Echo the signature
     frappe.response.type="download"
     frappe.response.content_type="text/plain"
+    frappe.response.filename="certificate.crt"
     frappe.response.display_content_as="inline"
     frappe.response.filecontent=base64.b64encode(signature).decode("ascii")
 
@@ -29,4 +30,5 @@ def qz_certificate():
     frappe.response.type="download"
     frappe.response.content_type="text/plain"
     frappe.response.display_content_as="inline"
+    frappe.response.filename="signed.txt"
     frappe.response.filecontent=cert
