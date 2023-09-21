@@ -272,6 +272,7 @@ def check_address(data, cust):
         new_address.address_type = "Shipping"
         new_address.address_line1 = data.get('address')
         new_address.city = data.get('city')
+        new_address.latlong = data.get('latlong')
         new_address.phone = data.get('customer_phone_no')
         new_address.save()
         cust.db_set("customer_primary_address", new_address.name, update_modified=False)
