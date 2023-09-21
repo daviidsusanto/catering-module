@@ -36,7 +36,7 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
               return function (resolve, reject) {
                 frappe.call({
                   url:
-                    "catering_module.public.qz_signing.sign_message?message=" +
+                    "/api/method/catering_module.public.qz_signing.sign_message?message=" +
                     toSign,
                   success: resolve,
                   error: reject,
