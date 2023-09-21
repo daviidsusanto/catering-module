@@ -19,7 +19,7 @@ def sign_message():
     frappe.response.content_type="text/plain"
     frappe.response.filename="certificate.crt"
     frappe.response.display_content_as="inline"
-    frappe.response.filecontent=base64.b64encode(signature).decode("ascii")
+    frappe.response.filecontent=base64.b64encode(signature)
 
 @frappe.whitelist()
 def qz_certificate():
