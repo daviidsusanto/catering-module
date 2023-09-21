@@ -33,24 +33,25 @@ def list_work_order(tgl_pengiriman, slot_pengiriman):
     frappe.response['data'] = output
 
 @frappe.whitelist()
-def get_nearest_distribution_point(my_location,travel_mode):
+def get_nearest_distribution_point(latitude,longitude,travel_mode):
     if frappe.db.get_single_value("API Setup", "active"):
         try:
             base_url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
 
-            distribution_points = frappe.get_list("Distribution Point",fields=["name","latlong","address"])
+            distribution_points = frappe.get_list("Distribution Point",fields=["name","gps_lat_distribution_point","gps_long_distribution_point","address"])
             
             data = {}
             origins = []
 
             for origin in distribution_points:
-                latitude_origin, longitude_origin = map(float, origin["latlong"].split(","))
+                latitude_origin = origin["gps_lat_distribution_point"]
+                longitude_origin = origin["gps_long_distribution_point"]
                 origin_data = {
                         "waypoint": {
                             "location": {
                                 "latLng": {
-                                    "latitude": latitude_origin,
-                                    "longitude": longitude_origin
+                                    "latitude": float(latitude_origin),
+                                    "longitude": float(longitude_origin)
                                 }
                             }
                         },
@@ -60,15 +61,14 @@ def get_nearest_distribution_point(my_location,travel_mode):
 
             data.update({"origins": origins})
 
-            latitude_destination, longitude_destination = map(float, my_location.split(','))
             destination = {
                     "destinations": [
                         {
                             "waypoint": {
                                 "location": {
                                     "latLng": {
-                                        "latitude": latitude_destination,
-                                        "longitude": longitude_destination
+                                        "latitude": float(latitude),
+                                        "longitude": float(longitude)
                                     }
                                 }
                             }
@@ -96,7 +96,7 @@ def get_nearest_distribution_point(my_location,travel_mode):
                 # Retrieve the corresponding origin index
                 origin_index = min_distance_item["originIndex"]
                 origin_latlong = data["origins"][origin_index]["waypoint"]["location"]["latLng"]
-                distribution_nearest = frappe.get_value("Distribution Point",{'latlong': str(origin_latlong['latitude'])+","+str(origin_latlong['longitude'])},["name","latlong","address"],as_dict=1)
+                distribution_nearest = frappe.get_value("Distribution Point",{'gps_lat_distribution_point': str(origin_latlong['latitude']),"gps_long_distribution_point": str(origin_latlong['longitude'])},["name","gps_lat_distribution_point","gps_long_distribution_point","address"],as_dict=1)
                 
                 frappe.response["code"] = 200
                 frappe.response["message"] = "Success"
@@ -272,7 +272,8 @@ def check_address(data, cust):
         new_address.address_type = "Shipping"
         new_address.address_line1 = data.get('address')
         new_address.city = data.get('city')
-        new_address.latlong = data.get('latlong')
+        new_address.gps_lat_customer = data.get('gps_lat_customer')
+        new_address.gps_long_customer = data.get('gps_long_customer')
         new_address.phone = data.get('customer_phone_no')
         new_address.save()
         cust.db_set("customer_primary_address", new_address.name, update_modified=False)
@@ -456,22 +457,23 @@ def qr_wo_kitchen(nomor_wo):
         frappe.response['message'] = "data tidak ada"
 
 
-def dist_point_check(my_location,travel_mode):
+def dist_point_check(latitude,longitude,travel_mode):
     base_url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
 
-    distribution_points = frappe.get_list("Distribution Point",fields=["name","latlong","address"])
-    
+    distribution_points = frappe.get_list("Distribution Point",fields=["name","gps_lat_distribution_point","gps_long_distribution_point","address"])
+            
     data = {}
     origins = []
 
     for origin in distribution_points:
-        latitude_origin, longitude_origin = map(float, origin["latlong"].split(","))
+        latitude_origin = origin["gps_lat_distribution_point"]
+        longitude_origin = origin["gps_long_distribution_point"]
         origin_data = {
                 "waypoint": {
                     "location": {
                         "latLng": {
-                            "latitude": latitude_origin,
-                            "longitude": longitude_origin
+                            "latitude": float(latitude_origin),
+                            "longitude": float(longitude_origin)
                         }
                     }
                 },
@@ -481,15 +483,14 @@ def dist_point_check(my_location,travel_mode):
 
     data.update({"origins": origins})
 
-    latitude_destination, longitude_destination = map(float, my_location.split(','))
     destination = {
             "destinations": [
                 {
                     "waypoint": {
                         "location": {
                             "latLng": {
-                                "latitude": latitude_destination,
-                                "longitude": longitude_destination
+                                "latitude": float(latitude),
+                                "longitude": float(longitude)
                             }
                         }
                     }
@@ -518,7 +519,7 @@ def dist_point_check(my_location,travel_mode):
         # Retrieve the corresponding origin index
         origin_index = min_distance_item["originIndex"]
         origin_latlong = data["origins"][origin_index]["waypoint"]["location"]["latLng"]
-        distribution_nearest = frappe.get_value("Distribution Point",{'latlong': str(origin_latlong['latitude'])+","+str(origin_latlong['longitude'])},["name","latlong","address"],as_dict=1)
+        distribution_nearest = frappe.get_value("Distribution Point",{'gps_lat_distribution_point': str(origin_latlong['latitude']),"gps_long_distribution_point": str(origin_latlong['longitude'])},["name","gps_lat_distribution_point","gps_long_distribution_point","address"],as_dict=1)
     
     return distribution_nearest
 
@@ -547,20 +548,20 @@ def check_rates(data):
                 "weight": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_weight"),
                 "width": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_width")
             })
-        if size <= 20 and "Tumpeng" not in category and "Nampan" not in category:
+        if size <= 20 and "Tumpeng" not in category and "Tampan" not in category:
             travel_mode = "TWO_WHEELER"
             type_courier = "instant"
         else:
             travel_mode = "DRIVE"
             type_courier = "instant_car"
         
-        dist_point = dist_point_check(data.get("latlong"),travel_mode)
+        dist_point = dist_point_check(data.get("latitude"),data.get("longitude"),travel_mode)
 
         # data_order.update({
-        #     "origin_latitude": dist_point.latlong.split(",")[0],
-        #     "origin_longitude": dist_point.latlong.split(",")[1],
-        #     "destination_latitude": data.get("latlong").split(",")[0],
-        #     "destination_longitude": data.get("latlong").split(",")[1],
+        #     "origin_latitude": float(dist_point.gps_lat_distribution_point),
+        #     "origin_longitude": float(dist_point.gps_long_distribution_point),
+        #     "destination_latitude": float(data.get("latitude")),
+        #     "destination_longitude": float(data.get("longitude")),
         #     "couriers":"grab",
         # })
 
@@ -603,7 +604,8 @@ def check_rates(data):
                             "company": i["company"],
                             "distribution_point": dist_point.name,
                             "distribution_point_address": dist_point.address,
-                            "distribution_point_latlong": dist_point.latlong
+                            "distribution_point_latitude": dist_point.gps_lat_distribution_point,
+                            "distribution_point_longitude": dist_point.gps_long_distribution_point
                         })
             else:
                 output.update(res)
