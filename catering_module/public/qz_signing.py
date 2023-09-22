@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 
 @frappe.whitelist()
 def sign_message():
-    message = frappe.request.args['message']
+    message = frappe.request.args.get("request")
     # Load signature
     b64_private_key = os.environ['QZ_PRIVATE_KEY']
     private_key = base64.b64decode(b64_private_key)
