@@ -35,7 +35,7 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
                 .catch(reject);
             });
 
-            qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
+            // qz.security.setSignatureAlgorithm("SHA512"); // Since 2.1
             qz.security.setSignaturePromise(function (toSign) {
               return function (resolve, reject) {
                 fetch(

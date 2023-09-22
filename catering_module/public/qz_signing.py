@@ -13,7 +13,7 @@ def sign_message():
     private_key = base64.b64decode(b64_private_key)
     key = serialization.load_pem_private_key(private_key, None, backend=default_backend())
     # Create the signature
-    signature = key.sign(message.encode('utf-8'), padding.PKCS1v15(), hashes.SHA512())  # Use hashes.SHA1() for QZ Tray 2.0 and older
+    signature = key.sign(message.encode('utf-8'), padding.PKCS1v15(), hashes.SHA1())  # Use hashes.SHA1() for QZ Tray 2.0 and older
     # Echo the signature
     frappe.response.type="download"
     frappe.response.content_type="text/plain"
