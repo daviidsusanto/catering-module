@@ -555,7 +555,7 @@ def check_rates(data):
             travel_mode = "DRIVE"
             type_courier = "instant_car"
         
-        dist_point = dist_point_check(data.get("latitude"),data.get("longitude"),travel_mode)
+        dist_point = dist_point_check(data.get("gps_lat_customer"),data.get("gps_long_customer"),travel_mode)
 
         # data_order.update({
         #     "origin_latitude": float(dist_point.gps_lat_distribution_point),
