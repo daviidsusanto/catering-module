@@ -54,6 +54,7 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
           })
           .then(function () {
             let config = qz.configs.create(nama_printer);
+            console.log(data)
             return qz.print(config, data);
           })
           .then(frappe.ui.form.qz_success)
