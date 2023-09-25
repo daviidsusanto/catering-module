@@ -18,7 +18,6 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
     },
     callback: function (r) {
       if (!r.exc) {
-        console.log(r.message);
         var data = [r.message];
         frappe.ui.form
           .qz_init()
