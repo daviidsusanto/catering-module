@@ -8,7 +8,10 @@
  "engine": "InnoDB",
  "field_order": [
   "gudang_produksi_portion_quantity",
-  "gudang_item_reserved_for_manufacturing_portion_quantity"
+  "gudang_item_reserved_for_manufacturing_portion_quantity",
+  "biteship_order_settings_section",
+  "shipper_contact_email",
+  "shipper_organization"
  ],
  "fields": [
   {
@@ -20,12 +23,27 @@
    "fieldname": "gudang_item_reserved_for_manufacturing_portion_quantity",
    "fieldtype": "Int",
    "label": "Gudang Item Reserved for Manufacturing Portion Quantity"
+  },
+  {
+   "fieldname": "biteship_order_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Biteship Order Settings"
+  },
+  {
+   "fieldname": "shipper_contact_email",
+   "fieldtype": "Data",
+   "label": "Shipper Contact Email"
+  },
+  {
+   "fieldname": "shipper_organization",
+   "fieldtype": "Data",
+   "label": "Shipper Organization"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-07-17 10:15:12.495200",
+ "modified": "2023-09-26 11:47:12.895732",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Catering Module Settings",
