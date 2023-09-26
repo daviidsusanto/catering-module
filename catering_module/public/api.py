@@ -548,7 +548,7 @@ def check_rates(data):
                 "weight": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_weight"),
                 "width": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_width")
             })
-        if size <= 20 and "Tumpeng" not in category and "Tampan" not in category:
+        if size <= 20 and "Tumpeng" not in category and "Nampan" not in category:
             travel_mode = "TWO_WHEELER"
             type_courier = "instant"
         else:

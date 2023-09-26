@@ -85,8 +85,8 @@ def schedule_orders():
             data.update({
                 "shipper_contact_name": frappe.get_value("Distribution Point", so.distribution_point, "staff_name"),
                 "shipper_contact_phone": frappe.get_value("Distribution Point", so.distribution_point, "staff_phone"), 
-                "shipper_contact_email":"omara@amarakitchen.com", 
-                "shipper_organization": "Omara", 
+                "shipper_contact_email": frappe.db.get_single_value("Catering Module Settings", "shipper_contact_email"), 
+                "shipper_organization": frappe.db.get_single_value("Catering Module Settings", "shipper_organization"), 
                 "origin_contact_name": frappe.get_value("Distribution Point", so.distribution_point, "staff_name"), 
                 "origin_contact_phone": frappe.get_value("Distribution Point", so.distribution_point, "staff_phone"), 
                 "origin_address": frappe.get_value("Distribution Point", so.distribution_point, "address"), 
@@ -97,7 +97,7 @@ def schedule_orders():
                 },
                 "destination_contact_name": so.nama_pic_penerima, 
                 "destination_contact_phone": so.no_telepon_pic_penerima,
-                "destination_contact_email": "",
+                "destination_contact_email": frappe.get_value("Customer", so.customer, "email"),
                 "destination_address": frappe.get_value("Address", so.shipping_address_name, "address_line1"), 
                 "destination_note": so.address_notes,
                 "destination_coordinate":{
