@@ -172,6 +172,9 @@ scheduler_events = {
         ],
         "00 03 * * *": [
             "catering_module.public.biteship_api.enqueue_schedule_orders"
+        ],
+		"*/5 * * * *": [
+            "catering_module.public.biteship_api.enqueue_schedule_orders"
         ]
     }
 }
