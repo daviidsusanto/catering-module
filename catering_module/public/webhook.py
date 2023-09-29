@@ -8,11 +8,11 @@ from catering_module.public.whatsapp_api import whatsapp_send_notif_order
 
 @frappe.whitelist()
 def biteship_order_hook(
-                event,
-                courier_tracking_id,
-                courier_waybill_id,
-                order_id,
-                status,
+                event = None,
+                courier_tracking_id = None,
+                courier_waybill_id = None,
+                order_id = None,
+                status = None,
                 courier_company = None,
                 courier_type = None,
                 courier_driver_name = None,
@@ -32,12 +32,35 @@ def biteship_order_hook(
             frappe.response["data"] = None
             return 
 
+        if (
+            event is None
+            and courier_tracking_id is None
+            and courier_waybill_id is None
+            and status is None
+            and courier_company is None
+            and courier_type is None
+            and courier_driver_name is None
+            and courier_driver_phone is None
+            and courier_link is None
+            and order_price == 0
+            and proof_of_delivery_fee == 0
+            and shippment_fee == 0
+            and price == 0
+            and cash_on_delivery_fee == 0
+        ):
+            frappe.response["code"] = 200
+            frappe.response["message"] = "Success"
+            frappe.response["data"] = {}
+            return        
+
         if not order_id:
             frappe.response["code"] = 400
             frappe.response["http_status_code"] = 400
             frappe.response["message"] = "Order ID is Mandatory"
             frappe.response["data"] = None
             return 
+        
+        
 
         so_name = frappe.get_value("Sales Order",{"order_id": order_id},"name")
         if not so_name:
