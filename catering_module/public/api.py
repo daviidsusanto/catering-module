@@ -622,8 +622,8 @@ def check_rates(data):
         frappe.response["data"] = e
 
 @frappe.whitelist()
-def check_items(item_name):
-    items = frappe.get_value("Item",{"item_name": item_name})
+def check_items(item_code):
+    items = frappe.get_value("Item",item_code)
     if items:
         frappe.response["code"] = 200
         frappe.response["http_status_code"] = 200
