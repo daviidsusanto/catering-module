@@ -620,3 +620,17 @@ def check_rates(data):
         frappe.response["http_status_code"] = 400
         frappe.response["message"] = "Request Failed"
         frappe.response["data"] = e
+
+@frappe.whitelist()
+def check_items(item_name):
+    items = frappe.get_value("Item",{"item_name": item_name})
+    if items:
+        frappe.response["code"] = 200
+        frappe.response["http_status_code"] = 200
+        frappe.response["message"] = "Success"
+        frappe.response["data"] = True
+    else:
+        frappe.response["code"] = 404
+        frappe.response["http_status_code"] = 404
+        frappe.response["message"] = "Data Not Found"
+        frappe.response["data"] = False
