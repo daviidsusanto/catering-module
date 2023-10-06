@@ -108,6 +108,7 @@ frappe.ui.form.on('Custom Production Plan', {
 				if (frm.doc.po_items && !frm.doc.created_wo && frm.doc.status !== "Closed") {
 					frm.add_custom_button(__("Work Order"), ()=> {
 						frm.trigger("make_work_order");
+						// frm.trigger("printing");
 					}, __('Create'));
 				}
 
@@ -193,6 +194,30 @@ frappe.ui.form.on('Custom Production Plan', {
 			}
 		});
 	},
+
+	// printing(frm) {
+	// 	frappe.call({
+    //         method: "frappe.www.printview.get_rendered_raw_commands",
+    //         args: {
+    //             doc: frm.doc,
+    //             print_format: "Sticker Box Variant",
+    //         },
+    //         callback: function (r) {
+    //             if (!r.exc) {
+    //                 let data = [r.message.raw_commands];
+    //                 frappe.ui.form.qz_connect()
+    //                 .then(function () {
+    //                     let config = qz.configs.create("Datamax-O'Neil E-4205A Mark III");
+    //                     return qz.print(config, data);
+    //                 })
+    //                 .then(frappe.ui.form.qz_success)
+    //                 .catch(err => {
+    //                     frappe.ui.form.qz_fail(err);
+    //                 });
+    //             }
+    //         },
+    //     });
+	// },
 
 	make_material_request(frm) {
 
