@@ -33,7 +33,8 @@ app_include_js = "public/js/qz_printing_addon.js"
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 doctype_js = {
     "BOM" : "public/js/bom_addon.js",
-    "BOM Item" : "public/js/bom_addon.js"
+    "BOM Item" : "public/js/bom_addon.js",
+    "Sales Order" : "public/js/sales_order_addon.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

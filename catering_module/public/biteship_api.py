@@ -104,7 +104,7 @@ def schedule_orders():
                     "latitude": float(frappe.get_value("Address", so.shipping_address_name, "gps_lat_customer")), 
                     "longitude": float(frappe.get_value("Address", so.shipping_address_name, "gps_long_customer"))
                 },
-                "courier_company": "grab",
+                "courier_company": so.courier_company,
                 "courier_type": so.courier_type,
                 "delivery_type": "scheduled",
                 "delivery_date": so.delivery_date.strftime("%Y-%m-%d"),
