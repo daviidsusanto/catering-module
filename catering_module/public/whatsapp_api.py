@@ -47,8 +47,8 @@ def whatsapp_send_notif_order(phone_no, no_invoice, tgl_pengiriman, waybill_id, 
             "Authorization": "Bearer " + oauth
         }
 
-        parameters = """No Invoice: {}\\nTgl Pengiriman: {}\\n\\nWaybill ID: {}\\nNama Kurir: {}\\nKontak Kurir: {}\\n\\nKakak bisa tracking progress pengiriman dengan klik link berikut:\\n{}""".format(
-            no_invoice, tgl_pengiriman, waybill_id, nama_kurir, kontak_kurir, tracking_link)
+        parameters = """No Invoice: {}\\nTgl Pengiriman: {}\\n Jam Pengiriman: {}\\n\\nWaybill ID: {}\\nNama Kurir: {}\\nKontak Kurir: {}\\n\\nKakak bisa tracking progress pengiriman dengan klik link berikut:\\n{}""".format(
+            no_invoice, tgl_pengiriman, jam_pengiriman, waybill_id, nama_kurir, kontak_kurir, tracking_link)
 
         base_url = setup.whatsapp_url
         data = {
