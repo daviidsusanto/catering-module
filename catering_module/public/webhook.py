@@ -88,6 +88,7 @@ def biteship_order_hook(
                         sales_order.no_telepon_pic_penerima,
                         sales_order.online_shop_invoice_no,
                         sales_order.delivery_date.strftime("%d-%m-%Y"),
+                        sales_order.jam_pengiriman,
                         sales_order.courier_waybill_id,
                         sales_order.courier_driver_name,
                         sales_order.courier_driver_phone,
