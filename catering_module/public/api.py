@@ -227,6 +227,7 @@ def create_sales_order(data):
                 "shipping_address_name": so.shipping_address_name,
                 "address_notes": so.address_notes,
                 "order_notes": so.order_notes,
+                "estimasi_jam_pengiriman": so.estimasi_jam_pengiriman,
                 "customer_group": so.customer_group,
                 "territory": so.territory,
                 "status": so.status,
@@ -295,6 +296,7 @@ def make_so(data, cust_id):
     so.delivery_date = data.get('delivery_date')
     so.jam_pengiriman = data.get('jam_pengiriman')
     so.order_notes = data.get('order_notes')
+    so.estimasi_jam_pengiriman = data.get('estimasi_jam_pengiriman')
     so.shipping_address_name = frappe.get_value("Customer", cust_id, "customer_primary_address")
     so.courier_type = data.get('courier_type')
     so.courier_company = data.get('courier_company')
