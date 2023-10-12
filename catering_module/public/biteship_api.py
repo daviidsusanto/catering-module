@@ -108,7 +108,7 @@ def schedule_orders():
                 "courier_type": so.courier_type,
                 "delivery_type": "scheduled",
                 "delivery_date": so.delivery_date.strftime("%Y-%m-%d"),
-                "delivery_time": str(so.jam_pengiriman),
+                "delivery_time": str(so.jam_pengiriman - timedelta(minutes=60)),
                 "order_note": so.order_notes,
                 "items": items
             })
