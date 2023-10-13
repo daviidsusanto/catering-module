@@ -33,7 +33,7 @@ def list_work_order(tgl_pengiriman, slot_pengiriman):
     frappe.response['data'] = output
 
 @frappe.whitelist()
-def get_nearest_distribution_point(latitude,longitude,travel_mode):
+def get_nearest_distribution_point(latitude,longitude):
     if frappe.db.get_single_value("API Setup", "active"):
         try:
             base_url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
@@ -54,8 +54,7 @@ def get_nearest_distribution_point(latitude,longitude,travel_mode):
                                     "longitude": float(longitude_origin)
                                 }
                             }
-                        },
-                        "routeModifiers": {"avoidTolls": True}
+                        }
                     }
                 origins.append(origin_data)
 
@@ -77,10 +76,10 @@ def get_nearest_distribution_point(latitude,longitude,travel_mode):
                 }
             
             data.update(destination)
-            data.update({
-                "travelMode": travel_mode,
-                "routingPreference": "TRAFFIC_AWARE"
-            })
+            # data.update({
+            #     "travelMode": travel_mode,
+            #     "routingPreference": "TRAFFIC_AWARE"
+            # })
             headers = {
                 "Content-Type": "application/json",
                 "X-Goog-Api-Key": frappe.db.get_single_value("API Setup","api_key_distance_matrix"),
@@ -459,7 +458,7 @@ def qr_wo_kitchen(nomor_wo):
         frappe.response['message'] = "data tidak ada"
 
 
-def dist_point_check(latitude,longitude,travel_mode):
+def dist_point_check(latitude,longitude):
     base_url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
 
     distribution_points = frappe.get_list("Distribution Point",fields=["name","gps_lat_distribution_point","gps_long_distribution_point","address"])
@@ -478,8 +477,7 @@ def dist_point_check(latitude,longitude,travel_mode):
                             "longitude": float(longitude_origin)
                         }
                     }
-                },
-                "routeModifiers": {"avoidTolls": True}
+                }
             }
         origins.append(origin_data)
 
@@ -501,10 +499,10 @@ def dist_point_check(latitude,longitude,travel_mode):
         }
     
     data.update(destination)
-    data.update({
-        "travelMode": travel_mode,
-        "routingPreference": "TRAFFIC_AWARE"
-    })
+    # data.update({
+    #     "travelMode": travel_mode,
+    #     "routingPreference": "TRAFFIC_AWARE"
+    # })
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": frappe.db.get_single_value("API Setup","api_key_distance_matrix"),
@@ -551,13 +549,13 @@ def check_rates(data):
                 "width": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_width")
             })
         if size <= 20 and "Tumpeng" not in category and "Nampan" not in category:
-            travel_mode = "TWO_WHEELER"
+            # travel_mode = "TWO_WHEELER"
             type_courier = "instant"
         else:
-            travel_mode = "DRIVE"
+            # travel_mode = "DRIVE"
             type_courier = "instant_car"
         
-        dist_point = dist_point_check(data.get("gps_lat_customer"),data.get("gps_long_customer"),travel_mode)
+        dist_point = dist_point_check(data.get("gps_lat_customer"),data.get("gps_long_customer"))
 
         # data_order.update({
         #     "origin_latitude": float(dist_point.gps_lat_distribution_point),
