@@ -51,6 +51,7 @@ frappe.ui.form.on('Sales Order', {
                     frappe.ui.form.qz_fail(err);
                   });
                   return qz.websocket.disconnect();
+                  
               }
             },
           });
