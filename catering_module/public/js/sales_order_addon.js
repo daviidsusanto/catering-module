@@ -50,6 +50,7 @@ frappe.ui.form.on('Sales Order', {
                   .catch((err) => {
                     frappe.ui.form.qz_fail(err);
                   });
+                  return qz.websocket.disconnect();
               }
             },
           });
