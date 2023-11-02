@@ -14,13 +14,14 @@
    "fieldname": "barcode",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Barcode"
+   "label": "Barcode",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-09-07 15:20:41.328073",
+ "modified": "2023-11-02 12:14:48.220920",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Barcode",

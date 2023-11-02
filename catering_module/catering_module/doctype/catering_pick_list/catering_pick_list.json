@@ -17,9 +17,9 @@
   "slot_pengiriman",
   "distribution_point",
   "section_break_15",
-  "locations",
-  "sales_order_pick_list",
   "barcode_tab",
+  "sales_order_pick_list",
+  "locations",
   "status",
   "amended_from"
  ],
@@ -41,9 +41,10 @@
    "reqd": 1
   },
   {
-   "default": "Material Transfer for Manufacture",
+   "default": "Delivery",
    "fieldname": "purpose",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Purpose",
    "options": "Material Transfer for Manufacture\nMaterial Transfer\nDelivery"
   },
@@ -74,7 +75,8 @@
    "fieldname": "locations",
    "fieldtype": "Table",
    "label": "Item Locations",
-   "options": "Pick List Item"
+   "options": "Pick List Item",
+   "read_only": 1
   },
   {
    "fieldname": "amended_from",
@@ -110,16 +112,20 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "barcode_tab",
    "fieldtype": "Table",
    "label": "Barcode",
-   "options": "Barcode"
+   "options": "Barcode",
+   "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "sales_order_pick_list",
    "fieldtype": "Table",
    "label": "Sales Order Pick List",
-   "options": "Sales Order Pick List"
+   "options": "Sales Order Pick List",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_cyagd",
@@ -147,7 +153,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2023-09-19 17:09:33.697708",
+ "modified": "2023-11-02 12:17:59.040434",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Catering Pick List",
