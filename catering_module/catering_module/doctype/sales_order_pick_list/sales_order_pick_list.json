@@ -13,13 +13,14 @@
    "fieldname": "sales_order",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Sales Order"
+   "label": "Sales Order",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-09-14 16:04:15.969900",
+ "modified": "2023-11-02 12:13:55.683696",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Sales Order Pick List",

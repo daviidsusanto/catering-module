@@ -14,7 +14,8 @@ class CateringPickList(Document):
 	
 	def get_barcode_from_so(self):
 		list_so = []
-		self.barcode = []
+		self.barcode_tab = []
+		self.sales_order_pick_list = []
 		for i in self.locations:
 			list_so.append(i.sales_order)
 
