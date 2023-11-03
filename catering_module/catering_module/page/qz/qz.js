@@ -9,6 +9,7 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
   const docname = route[2];
   const print_format = route[3];
   const nama_printer = route[4];
+  const print_server = route[5];
   frappe.call({
     method: "frappe.www.printview.get_rendered_raw_commands",
     args: {
@@ -50,7 +51,7 @@ frappe.pages["qz"].on_page_load = function (wrapper) {
               };
             });
 
-            return qz.websocket.connect();
+            return qz.websocket.connect({ host: print_server || undefined });
           })
           .then(function () {
             let config = qz.configs.create(nama_printer);
