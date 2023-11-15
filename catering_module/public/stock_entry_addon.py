@@ -33,8 +33,8 @@ def validate_qty(doc,name):
                         if yields_bom and i.qty_hasil_real < qty_required_on_bom :
                             frappe.db.sql(
                                 """UPDATE `tabWork Order Item`
-                                set qty_for_print = %s WHERE name = %s""",
-                                ((y['required_qty'] * yields_bom), y['woi_name']),
+                                set qty_for_print = %s, yield = %s WHERE name = %s""",
+                                ((y['required_qty'] * yields_bom), yields_bom, y['woi_name']),
                             )
                     i.yields = yields_bom
 
