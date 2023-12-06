@@ -12,6 +12,7 @@
   "purpose",
   "customer",
   "customer_name",
+  "delivery_status",
   "column_break_cyagd",
   "delivery_date_custom",
   "slot_pengiriman",
@@ -149,11 +150,17 @@
    "fieldtype": "Date",
    "label": "Delivery Date",
    "read_only": 1
+  },
+  {
+   "fieldname": "delivery_status",
+   "fieldtype": "Select",
+   "label": "Delivery Status",
+   "options": "Undelivered\nDelivered"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-02 12:17:59.040434",
+ "modified": "2023-12-06 10:48:41.354745",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Catering Pick List",

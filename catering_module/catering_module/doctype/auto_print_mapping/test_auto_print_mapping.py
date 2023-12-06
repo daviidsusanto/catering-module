@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestCateringItemCategory(FrappeTestCase):
+class TestAutoPrintMapping(FrappeTestCase):
 	pass

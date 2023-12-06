@@ -9,8 +9,12 @@
  "engine": "InnoDB",
  "field_order": [
   "vehicle_type",
-  "max_total_item_size",
-  "tip_amount"
+  "shipping_point_maximum",
+  "shipping_point_maximum_tumpeng",
+  "shipping_point_maximum_tampah",
+  "dimension_vehicle_height",
+  "dimension_vehicle_width",
+  "dimension_vehicle_depth"
  ],
  "fields": [
   {
@@ -20,19 +24,39 @@
    "unique": 1
   },
   {
-   "fieldname": "max_total_item_size",
+   "fieldname": "shipping_point_maximum",
    "fieldtype": "Int",
-   "label": "Max Total Item Size"
+   "label": "Shipping Point Maximum"
   },
   {
-   "fieldname": "tip_amount",
-   "fieldtype": "Float",
-   "label": "Tip Amount"
+   "fieldname": "shipping_point_maximum_tumpeng",
+   "fieldtype": "Int",
+   "label": "Shipping Point Maximum Tumpeng"
+  },
+  {
+   "fieldname": "shipping_point_maximum_tampah",
+   "fieldtype": "Int",
+   "label": "Shipping Point Maximum Tampah"
+  },
+  {
+   "fieldname": "dimension_vehicle_height",
+   "fieldtype": "Int",
+   "label": "Dimension Vehicle Height"
+  },
+  {
+   "fieldname": "dimension_vehicle_width",
+   "fieldtype": "Int",
+   "label": "Dimension Vehicle Width"
+  },
+  {
+   "fieldname": "dimension_vehicle_depth",
+   "fieldtype": "Int",
+   "label": "Dimension Vehicle Depth"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-07 11:37:49.592294",
+ "modified": "2023-12-06 12:51:13.426128",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Delivery Vehicle Type",

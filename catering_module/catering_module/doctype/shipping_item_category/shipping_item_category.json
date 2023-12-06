@@ -1,29 +1,41 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:item_category",
+ "autoname": "field:shipping_item_category",
  "creation": "2023-09-01 11:40:52.991396",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "item_category"
+  "shipping_item_category",
+  "shipping_point",
+  "kelipatan_tim_porsi"
  ],
  "fields": [
   {
-   "fieldname": "item_category",
+   "fieldname": "shipping_point",
+   "fieldtype": "Int",
+   "label": "Shipping Point"
+  },
+  {
+   "fieldname": "kelipatan_tim_porsi",
+   "fieldtype": "Int",
+   "label": "Kelipatan Tim Porsi"
+  },
+  {
+   "fieldname": "shipping_item_category",
    "fieldtype": "Data",
-   "label": "Item Category",
+   "label": "Shipping Item Category",
    "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-01 11:40:52.991396",
+ "modified": "2023-12-06 11:26:59.079141",
  "modified_by": "Administrator",
  "module": "Catering Module",
- "name": "Catering Item Category",
+ "name": "Shipping Item Category",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [

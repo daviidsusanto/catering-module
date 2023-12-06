@@ -316,8 +316,8 @@ def make_so(data, cust_id):
                     'is_free_item': True,
                     'rate': 0,
                     'amount': 0,
-                    'item_category': j.get('item_category'),
-                    'size': j.get('size')
+                    'item_category': frappe.get_value("Item",{"item_code": item_code},"shipping_item_category"),
+                    'size': frappe.get_value("Item",{"item_code": item_code},"shipping_point")
                 })
             else:
                 so.append('items', {
@@ -326,8 +326,8 @@ def make_so(data, cust_id):
                     'is_free_item': False,
                     'rate': j.get('rate'),
                     'amount': int(j.get('rate')) * int(j.get('qty')),
-                    'item_category': j.get('item_category'),
-                    'size': j.get('size')
+                    'item_category': frappe.get_value("Item",{"item_code": item_code},"shipping_item_category"),
+                    'size': frappe.get_value("Item",{"item_code": item_code},"shipping_point")
                 })
     if data.get('promotions'):
          for k in data.get('promotions'):
@@ -348,11 +348,11 @@ def make_so(data, cust_id):
 @frappe.whitelist()
 def item_category_list():
     try:
-        item_category = frappe.get_all("Catering Item Category", fields=["*"])
+        item_category = frappe.get_all("Shipping Item Category", fields=["*"])
         output = []
         if item_category:
             for i in item_category:
-                output.append(i.item_category)
+                output.append(i.shipping_item_category)
         frappe.response["code"] = 200
         frappe.response["message"] = "Success"
         frappe.response['data'] = output
@@ -543,12 +543,13 @@ def check_rates(data):
                 "description" : frappe.get_value("Item", frappe.get_value("Item",{"item_name": i.get("item_code")},"name"), "description"),
                 "value" : i.get("rate") * i.get("qty"),
                 "quantity" : i.get("qty"),
-                "height": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_height"),
-                "length": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_length"),
-                "weight": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_weight"),
-                "width": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_width")
+                ####perlu diupdate lagi#######
+                "height": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_height"),
+                "length": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_depth"),
+                "weight": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_weight"),
+                "width": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_width")
             })
-        if size <= 20 and "Tumpeng" not in category and "Nampan" not in category:
+        if size <= 20 and "Tumpeng" not in category and "Tampah" not in category:
             # travel_mode = "TWO_WHEELER"
             type_courier = "instant"
         else:

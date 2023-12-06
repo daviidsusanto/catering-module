@@ -76,10 +76,10 @@ def schedule_orders():
                     "description": frappe.get_value("Item", item.item_code, "description"),
                     "value": item.amount,
                     "quantity": item.qty,
-                    "height": frappe.get_value("Catering Masterbox", item.item_category, "dimension_height"),
-                    "length": frappe.get_value("Catering Masterbox", item.item_category, "dimension_length"),
-                    "weight": frappe.get_value("Catering Masterbox", item.item_category, "dimension_weight"),
-                    "width": frappe.get_value("Catering Masterbox", item.item_category, "dimension_width")
+                    "height": frappe.get_value("Shipping Packaging", item.item_category, "dimension_height"),
+                    "length": frappe.get_value("Shipping Packaging", item.item_category, "dimension_depth"),
+                    "weight": frappe.get_value("Shipping Packaging", item.item_category, "dimension_weight"),
+                    "width": frappe.get_value("Shipping Packaging", item.item_category, "dimension_width")
                 })
 
             data.update({

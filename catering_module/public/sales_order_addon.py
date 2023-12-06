@@ -26,7 +26,7 @@ def generate_barcode_so(doc,name):
             mb = 0
             for x in result:
                 value = result[x]
-                qty_per_master_box = frappe.get_value("Catering Masterbox",{'name': x},'quantity_per_master_box')
+                qty_per_master_box = frappe.get_value("Shipping Packaging",{'name': x},'quantity_per_master_box')
                 mb += math.ceil(value / qty_per_master_box)
 
             for i in range(0,mb):
