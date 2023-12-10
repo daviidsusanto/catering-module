@@ -1,0 +1,69 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-12-10 20:17:46.684634",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "pick_list_id",
+  "delivery_date",
+  "jam_pengiriman",
+  "distribution_point"
+ ],
+ "fields": [
+  {
+   "fieldname": "pick_list_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Pick List ID",
+   "options": "Pick List"
+  },
+  {
+   "fieldname": "delivery_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Delivery Date",
+   "search_index": 1
+  },
+  {
+   "fieldname": "jam_pengiriman",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Jam Pengiriman"
+  },
+  {
+   "fieldname": "distribution_point",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Distribution Point",
+   "options": "Distribution Point",
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-12-10 20:18:35.611831",
+ "modified_by": "Administrator",
+ "module": "Catering Module",
+ "name": "Record Jam Pengiriman",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
