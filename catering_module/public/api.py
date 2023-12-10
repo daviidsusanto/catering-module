@@ -297,8 +297,8 @@ def make_so(data, cust_id):
     so.order_notes = data.get('order_notes')
     so.estimasi_jam_pengiriman = data.get('estimasi_jam_pengiriman')
     so.shipping_address_name = frappe.get_value("Customer", cust_id, "customer_primary_address")
-    so.courier_type = data.get('courier_type')
-    so.courier_company = data.get('courier_company')
+    so.courier_type = data.get('courier_type') #Tentuin pake logic
+    so.courier_company = data.get('courier_company') #Tentuin pake logic
     if data.get('custom_design'):
         for i in data.get('custom_design'):
             so.append('custom_design', {
