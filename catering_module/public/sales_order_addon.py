@@ -17,7 +17,7 @@ def generate_barcode_so(doc,name):
             for j in doc.items:
                 data.append({'qty': j.qty,'item_category': j.item_category})
 
-            sorted_data = sorted(data, key=lambda x: x["item_category"])
+            sorted_data = sorted(data, key=lambda x: x["item_category"] if x["item_category"] else "")
 
             result = {
                         key: sum(item["qty"] for item in group)
@@ -26,8 +26,9 @@ def generate_barcode_so(doc,name):
             mb = 0
             for x in result:
                 value = result[x]
-                qty_per_master_box = frappe.get_value("Shipping Packaging",{'name': x},'quantity_per_master_box')
-                mb += math.ceil(value / qty_per_master_box)
+                qty_per_master_box = frappe.get_value("Shipping Packaging",{'name': x},'kapasitas_shipping_point')
+                if qty_per_master_box:
+                    mb += math.ceil(value / qty_per_master_box)
 
             for i in range(0,mb):
                 alphanumeric_characters = string.ascii_letters + string.digits
