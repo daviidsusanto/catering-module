@@ -703,8 +703,8 @@ def get_packaging_type(vehicle_type, total_shipping_point):
     }
 
     max_packaging_A = frappe.get_value("Shipping Packaging", "Plastik Kecil", "kapasitas_shipping_point")
-    max_packaging_B = frappe.get_value("Shipping Packaging", "Plastik Besar", "kapasitas_shipping_point")
-    max_packaging_C = frappe.get_value("Shipping Packaging", "Masterbox Kecil", "kapasitas_shipping_point")
+    max_packaging_B = frappe.get_value("Shipping Packaging", "Masterbox Kecil", "kapasitas_shipping_point")
+    max_packaging_C = frappe.get_value("Shipping Packaging", "Masterbox Besar", "kapasitas_shipping_point")
 
     if vehicle_type.lower() == "motor":
         max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum")
@@ -725,17 +725,17 @@ def get_packaging_type(vehicle_type, total_shipping_point):
                                 if temp_o >= 7:
                                     result["packaging_B"] += 1
                                 elif temp_o < 7:
-                                    result["packaging_A"] += 1
-                    elif temp_b < 7:
-                        result["packaging_A"] += 1
+                                    result["packaging_A"] = 1
+                    elif temp_b != 0 and temp_b < 7:
+                        result["packaging_A"] = 1
                 else:
                     temp_b = total_shipping_point/max_packaging_B
                     if temp_b != 0:
                         temp_a = temp_b % max_packaging_B
                         if temp_a >= 7:
                             result["packaging_B"] += 1
-                        elif temp_a < 7:
-                            result["packaging_A"] += 1
+                        elif temp_a != 0 and temp_a < 7:
+                            result["packaging_A"] = 1
 
     if vehicle_type.lower() == "mobil":
         min_shipping_point = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum") + 1
@@ -748,8 +748,8 @@ def get_packaging_type(vehicle_type, total_shipping_point):
                 temp_a = total_shipping_point % max_packaging_B
                 if temp_a >= 7:
                     result["packaging_B"] += 1
-                elif temp_a < 7:
-                    result["packaging_A"] += 1
+                elif temp_a != 0 and temp_a < 7:
+                    result["packaging_A"] = 1
             else:
                 temp_a = total_shipping_point/max_packaging_A
                 result["packaging_A"] = floor(temp_a)
@@ -769,8 +769,8 @@ def get_packaging_type(vehicle_type, total_shipping_point):
                 temp_a = total_shipping_point % max_packaging_B
                 if temp_a >= 7:
                     result["packaging_B"] += 1
-                elif temp_a < 7:
-                    result["packaging_A"] += 1
+                elif temp_a != 0 and temp_a < 7:
+                    result["packaging_A"] = 1
             else:
                 temp_a = total_shipping_point / max_packaging_A
                 result["packaging_A"] = floor(temp_a)
