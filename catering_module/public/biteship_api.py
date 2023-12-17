@@ -138,3 +138,33 @@ def enqueue_schedule_orders():
                 timeout = 7200,
                 is_async = False
             )
+
+
+def delete_order(id, cancellation_reason):
+    logger = frappe.logger("delete_order", allow_site=True, file_count=100)
+    res = {}
+    data = {
+        "cancellation_reason": cancellation_reason
+    }
+    url = "/v1/orders/{}".format(id)
+    res = base_api(url, 'DELETE', json.dumps(data))
+    res.update({
+        "sales_order_id": id
+    })
+    logger.info("res: {}".format(res))
+
+
+@frappe.whitelist()
+def late_delivery_handling():
+    all_pick_list = frappe.get_all("Pick List", fields=["*"], filters={"status": "Undelivered"})
+    if all_pick_list:
+        for row in all_pick_list:
+            pl = frappe.get_doc("Pick List", row.name)
+            for item in pl.locations:
+                so = frappe.get_doc("Sales Order", item.sales_order)
+                if so.delivery_date == frappe.utils.nowdate():
+                    if (datetime.strptime(so.jam_pengiriman, '%H:%M:%S') - datetime.strptime(frappe.utils.nowtime(), '%H:%M:%S').total_seconds() <= 300):
+                        __delete_order = delete_order(so.name, "Change courier")
+                        so.courier_status = "Deleted"
+                        so.save()
+                        # KIRIM WA
