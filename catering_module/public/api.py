@@ -3,6 +3,7 @@ import requests
 import random
 import string
 import json
+from math import floor
 from itertools import groupby
 
 from catering_module.public.biteship_api import base_api
@@ -690,5 +691,92 @@ def get_vehicle_type(total_shipping_point, shipping_category):
             result["vehicle_type"] = "van"
             result["courier_type"] = "van"
             result["courier_company"] = "deliveree"
+
+    return result
+
+@frappe.whitelist()
+def get_packaging_type(vehicle_type, total_shipping_point):
+    result = {
+        "packaging_A": 0,
+        "packaging_B": 0,
+        "packaging_C": 0
+    }
+
+    max_packaging_A = frappe.get_value("Shipping Packaging", "Plastik Kecil", "kapasitas_shipping_point")
+    max_packaging_B = frappe.get_value("Shipping Packaging", "Plastik Besar", "kapasitas_shipping_point")
+    max_packaging_C = frappe.get_value("Shipping Packaging", "Masterbox Kecil", "kapasitas_shipping_point")
+
+    if vehicle_type.lower() == "motor":
+        max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum")
+        if total_shipping_point >= 1 and total_shipping_point <= 6:
+            result["packaging_A"] += 1
+        elif total_shipping_point >= 7 and total_shipping_point <= 80:
+            if max_packaging_C:
+                temp_c = total_shipping_point/max_packaging_C
+                result["packaging_C"] += floor(temp_c)
+                if result["packaging_C"] != 0:
+                    temp_b = total_shipping_point % max_packaging_C
+                    if temp_b >= 7:
+                        if max_packaging_B:
+                            temp_a = temp_b/max_packaging_B
+                            result["packaging_B"] += floor(temp_a)
+                            if result["packaging_B"] != 0:
+                                temp_o = temp_b % max_packaging_B
+                                if temp_o >= 7:
+                                    result["packaging_B"] += 1
+                                elif temp_o < 7:
+                                    result["packaging_A"] += 1
+                    elif temp_b < 7:
+                        result["packaging_A"] += 1
+                else:
+                    temp_b = total_shipping_point/max_packaging_B
+                    if temp_b != 0:
+                        temp_a = temp_b % max_packaging_B
+                        if temp_a >= 7:
+                            result["packaging_B"] += 1
+                        elif temp_a < 7:
+                            result["packaging_A"] += 1
+
+    if vehicle_type.lower() == "mobil":
+        min_shipping_point = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum") + 1
+        max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum")
+
+        if total_shipping_point >= 81 and total_shipping_point <= 240:
+            temp_b = total_shipping_point/max_packaging_B
+            result["packaging_B"] += floor(temp_b)
+            if result["packaging_B"] != 0:
+                temp_a = total_shipping_point % max_packaging_B
+                if temp_a >= 7:
+                    result["packaging_B"] += 1
+                elif temp_a < 7:
+                    result["packaging_A"] += 1
+            else:
+                temp_a = total_shipping_point/max_packaging_A
+                result["packaging_A"] = floor(temp_a)
+                if result["packaging_A"] != 0:
+                    temp_o = total_shipping_point % max_packaging_A
+                    if temp_o != 0:
+                        result["packaging_A"] += 1
+
+    if vehicle_type.lower() == "Van":
+        min_shipping_point = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum") + 1
+        max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Van", "shipping_point_maximum")
+
+        if total_shipping_point >= 241 and total_shipping_point <= 1512:
+            temp_b = total_shipping_point / max_packaging_B
+            result["packaging_B"] = floor(temp_b)
+            if result["packaging_B"] != 0:
+                temp_a = total_shipping_point % max_packaging_B
+                if temp_a >= 7:
+                    result["packaging_B"] += 1
+                elif temp_a < 7:
+                    result["packaging_A"] += 1
+            else:
+                temp_a = total_shipping_point / max_packaging_A
+                result["packaging_A"] = floor(temp_a)
+                if result["packaging_A"] != 0:
+                    temp_o = total_shipping_point % max_packaging_A
+                    if temp_o != 0:
+                        result["packaging_A"] += 1
 
     return result
