@@ -164,7 +164,6 @@ def late_delivery_handling():
                 so = frappe.get_doc("Sales Order", item.sales_order)
                 if so.delivery_date == frappe.utils.nowdate():
                     if (datetime.strptime(so.jam_pengiriman, '%H:%M:%S') - datetime.strptime(frappe.utils.nowtime(), '%H:%M:%S').total_seconds() <= 300):
-                        __delete_order = delete_order(so.name, "Change courier")
-                        so.courier_status = "Deleted"
-                        so.save()
+                        __delete_order = delete_order(so.order_id, "Change Courier")
+                        so.db_set("custom_courier_status", "Deleted", update_modified=False, notify=True, commit=True)
                         # KIRIM WA
