@@ -405,6 +405,9 @@ class CustomProductionPlan(Document):
 
 	def on_submit(self):
 		self.update_bin_qty()
+		self.make_work_order()
+		self.make_material_request_and_po()
+		self.create_catering_pick_list()
 
 	def on_cancel(self):
 		self.db_set("status", "Cancelled")
@@ -420,10 +423,15 @@ class CustomProductionPlan(Document):
 
 	def delete_draft_work_order(self):
 		for d in frappe.get_all(
-			"Work Order", fields=["name"], filters={"docstatus": 0, "production_plan": ("=", self.name)}
+			"Work Order", fields=["name"], filters={"docstatus": 0, "custom_production_plan": ("=", self.name)}
 		):
 			frappe.delete_doc("Work Order", d.name)
 
+	def create_catering_pick_list(self):
+		pass
+		# pl = frappe.new_doc("Catering Pick List")
+		# pl.
+		
 	@frappe.whitelist()
 	def set_status(self, close=None):
 		self.status = {0: "Draft", 1: "Submitted", 2: "Cancelled"}.get(self.docstatus)

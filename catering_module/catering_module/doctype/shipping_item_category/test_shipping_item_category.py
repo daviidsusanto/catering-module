@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestCateringMasterbox(FrappeTestCase):
+class TestShippingItemCategory(FrappeTestCase):
 	pass

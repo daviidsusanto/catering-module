@@ -122,7 +122,8 @@ doc_events = {
 	},
 	"Sales Order": {
 		"validate": ["catering_module.public.sales_order_addon.generate_barcode_so",
-				"catering_module.public.sales_order_addon.override_rate_is_free_item"]
+				"catering_module.public.sales_order_addon.override_rate_is_free_item"],
+		"after_insert": "catering_module.public.sales_order_addon.create_sales_invoice",
 	},
 	"Stock Entry": {
 		"on_submit": [
@@ -136,9 +137,10 @@ doc_events = {
 	"Purchase Order": {
 		"on_submit": "catering_module.public.purchase_order_addon.send_whatsapp_notif_to_supplier",
 	},
-	# "Pick List": {
-	# 	"validate": "catering_module.public.pick_list_addon.get_barcode_from_so",
-	# }
+	"Pick List": {
+		# "validate": "catering_module.public.pick_list_addon.get_barcode_from_so",
+		"validate": "catering_module.public.pick_list_addon.order_now"
+	}
 }
 
 

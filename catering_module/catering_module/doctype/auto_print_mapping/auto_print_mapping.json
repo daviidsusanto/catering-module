@@ -1,0 +1,65 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:APM-{#####}",
+ "creation": "2023-12-06 10:52:37.084687",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "doctype_trigger_print",
+  "doctype_parent",
+  "print_format_name",
+  "ip_printer"
+ ],
+ "fields": [
+  {
+   "fieldname": "doctype_trigger_print",
+   "fieldtype": "Link",
+   "label": "Doctype Trigger Print",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "doctype_parent",
+   "fieldtype": "Link",
+   "label": "Doctype Parent",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "print_format_name",
+   "fieldtype": "Data",
+   "label": "Print Format Name"
+  },
+  {
+   "fieldname": "ip_printer",
+   "fieldtype": "Data",
+   "label": "IP Printer"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-12-06 11:09:01.642617",
+ "modified_by": "Administrator",
+ "module": "Catering Module",
+ "name": "Auto Print Mapping",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

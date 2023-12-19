@@ -3,6 +3,7 @@ import requests
 import random
 import string
 import json
+from math import floor
 from itertools import groupby
 
 from catering_module.public.biteship_api import base_api
@@ -199,53 +200,53 @@ def get_work_orders(tgl_pengiriman, slot_pengiriman):
 
 @frappe.whitelist()
 def create_sales_order(data):
-    try:
-        output = {}
-        if data.get('customer_phone_no'):
-            if not frappe.db.exists("Customer", {"phone_number": data.get('customer_phone_no')}):
-                cust = create_new_cust(data)
-                so = make_so(data, cust.name)
-            else:
-                cust = frappe.get_doc("Customer", {"phone_number": data.get('customer_phone_no')})
-                check_address(data, cust)
-                so = make_so(data, cust.name)
-            output.update({
-                "sales_order_id": so.name,
-                "creation": so.creation,
-                "customer": so.customer,
-                "customer_name": so.customer_name,
-                "order_type": so.order_type,
-                "transaction_date": so.transaction_date,
-                "delivery_date": so.delivery_date,
-                "slot_pengiriman": so.slot_pengiriman,
-                "jam_pengiriman": so.jam_pengiriman,
-                "online_shop_invoice_no": so.online_shop_invoice_no,
-                "distribution_point": so.distribution_point,
-                "nama_pic_penerima": so.nama_pic_penerima,
-                "no_telepon_pic_penerima": so.no_telepon_pic_penerima,
-                "shipping_address_name": so.shipping_address_name,
-                "address_notes": so.address_notes,
-                "order_notes": so.order_notes,
-                "estimasi_jam_pengiriman": so.estimasi_jam_pengiriman,
-                "customer_group": so.customer_group,
-                "territory": so.territory,
-                "status": so.status,
-                "delivery_status": so.delivery_status,
-                "total": so.total,
-                "total_taxes_and_charges":so.total_taxes_and_charges,
-                "grand_total": so.grand_total,
-                "custom_design": so.custom_design,
-                "taxes": so.taxes,
-                "items": so.items
-            })
-        # del frappe.local.response['exc_type']
-        frappe.response["code"] = 200
-        frappe.response["message"] = "Success"
-        frappe.response['data'] = output
-    except Exception as e:
-        frappe.response["code"] = 400
-        frappe.response["message"] = "Request Failed"
-        frappe.response["data"] = e
+    # try:
+    output = {}
+    if data.get('customer_phone_no'):
+        if not frappe.db.exists("Customer", {"phone_number": data.get('customer_phone_no')}):
+            cust = create_new_cust(data)
+            so = make_so(data, cust.name)
+        else:
+            cust = frappe.get_doc("Customer", {"phone_number": data.get('customer_phone_no')})
+            check_address(data, cust)
+            so = make_so(data, cust.name)
+        output.update({
+            "sales_order_id": so.name,
+            "creation": so.creation,
+            "customer": so.customer,
+            "customer_name": so.customer_name,
+            "order_type": so.order_type,
+            "transaction_date": so.transaction_date,
+            "delivery_date": so.delivery_date,
+            "slot_pengiriman": so.slot_pengiriman,
+            "jam_pengiriman": so.jam_pengiriman,
+            "online_shop_invoice_no": so.online_shop_invoice_no,
+            "distribution_point": so.distribution_point,
+            "nama_pic_penerima": so.nama_pic_penerima,
+            "no_telepon_pic_penerima": so.no_telepon_pic_penerima,
+            "shipping_address_name": so.shipping_address_name,
+            "address_notes": so.address_notes,
+            "order_notes": so.order_notes,
+            "estimasi_jam_pengiriman": so.estimasi_jam_pengiriman,
+            "customer_group": so.customer_group,
+            "territory": so.territory,
+            "status": so.status,
+            "delivery_status": so.delivery_status,
+            "total": so.total,
+            "total_taxes_and_charges":so.total_taxes_and_charges,
+            "grand_total": so.grand_total,
+            "custom_design": so.custom_design,
+            "taxes": so.taxes,
+            "items": so.items
+        })
+    # del frappe.local.response['exc_type']
+    frappe.response["code"] = 200
+    frappe.response["message"] = "Success"
+    frappe.response['data'] = output
+    # except Exception as e:
+    #     frappe.response["code"] = 400
+    #     frappe.response["message"] = "Request Failed"
+    #     frappe.response["data"] = e
 
 def create_new_cust(data):
     cust = frappe.new_doc("Customer")
@@ -294,11 +295,12 @@ def make_so(data, cust_id):
     so.slot_pengiriman = data.get('slot_pengiriman')
     so.delivery_date = data.get('delivery_date')
     so.jam_pengiriman = data.get('jam_pengiriman')
+    so.approval_code = data.get('approval_code')
     so.order_notes = data.get('order_notes')
     so.estimasi_jam_pengiriman = data.get('estimasi_jam_pengiriman')
     so.shipping_address_name = frappe.get_value("Customer", cust_id, "customer_primary_address")
-    so.courier_type = data.get('courier_type')
-    so.courier_company = data.get('courier_company')
+    # so.courier_type = data.get('courier_type') #Tentuin pake logic
+    # so.courier_company = data.get('courier_company') #Tentuin pake logic
     if data.get('custom_design'):
         for i in data.get('custom_design'):
             so.append('custom_design', {
@@ -306,6 +308,7 @@ def make_so(data, cust_id):
                 'design_file_original': i.get('design_file_original'),
                 'design_file_with_order_data': i.get('design_file_with_order_data')
             })
+    total_shipping_point = 0
     if data.get('order_details'):
         for j in data.get('order_details'):
             item_code = frappe.get_value("Item",{"item_name": j.get('item_code')},"item_code")
@@ -316,9 +319,10 @@ def make_so(data, cust_id):
                     'is_free_item': True,
                     'rate': 0,
                     'amount': 0,
-                    'item_category': j.get('item_category'),
-                    'size': j.get('size')
+                    'item_category': frappe.get_value("Item",{"item_code": item_code},"shipping_item_category"),
+                    'size': frappe.get_value("Item",{"item_code": item_code},"shipping_point")
                 })
+                total_shipping_point += frappe.get_value("Item",{"item_code": item_code},"shipping_point") or 0
             else:
                 so.append('items', {
                     'item_code': item_code,
@@ -326,9 +330,10 @@ def make_so(data, cust_id):
                     'is_free_item': False,
                     'rate': j.get('rate'),
                     'amount': int(j.get('rate')) * int(j.get('qty')),
-                    'item_category': j.get('item_category'),
-                    'size': j.get('size')
+                    'item_category': frappe.get_value("Item",{"item_code": item_code},"shipping_item_category"),
+                    'size': frappe.get_value("Item",{"item_code": item_code},"shipping_point")
                 })
+                total_shipping_point += frappe.get_value("Item",{"item_code": item_code},"shipping_point") or 0
     if data.get('promotions'):
          for k in data.get('promotions'):
             promotions = frappe.get_all("Promotion Program", fields=["*"], filters={"name": k['description']})
@@ -341,6 +346,9 @@ def make_so(data, cust_id):
                     'description': promotions[0].description,
                     'tax_amount': amount
                 })
+    __get_vehicle_type = get_vehicle_type(int(total_shipping_point), "Box")
+    so.courier_type = __get_vehicle_type.get("courier_type")
+    so.courier_company = __get_vehicle_type.get("courier_company")
     so.save()
     so.submit()
     return so
@@ -348,11 +356,11 @@ def make_so(data, cust_id):
 @frappe.whitelist()
 def item_category_list():
     try:
-        item_category = frappe.get_all("Catering Item Category", fields=["*"])
+        item_category = frappe.get_all("Shipping Item Category", fields=["*"])
         output = []
         if item_category:
             for i in item_category:
-                output.append(i.item_category)
+                output.append(i.shipping_item_category)
         frappe.response["code"] = 200
         frappe.response["message"] = "Success"
         frappe.response['data'] = output
@@ -543,12 +551,13 @@ def check_rates(data):
                 "description" : frappe.get_value("Item", frappe.get_value("Item",{"item_name": i.get("item_code")},"name"), "description"),
                 "value" : i.get("rate") * i.get("qty"),
                 "quantity" : i.get("qty"),
-                "height": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_height"),
-                "length": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_length"),
-                "weight": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_weight"),
-                "width": frappe.get_value("Catering Masterbox", i.get("item_category"), "dimension_width")
+                ####perlu diupdate lagi#######
+                "height": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_height"),
+                "length": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_depth"),
+                "weight": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_weight"),
+                "width": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_width")
             })
-        if size <= 20 and "Tumpeng" not in category and "Nampan" not in category:
+        if size <= 20 and "Tumpeng" not in category and "Tampah" not in category:
             # travel_mode = "TWO_WHEELER"
             type_courier = "instant"
         else:
@@ -634,3 +643,141 @@ def check_items(item_code):
         frappe.response["http_status_code"] = 404
         frappe.response["message"] = "Data Not Found"
         frappe.response["data"] = False
+
+@frappe.whitelist()
+def get_vehicle_type(total_shipping_point, shipping_category):
+    result = {
+        "vehicle_type": "",
+        "courier_type": "",
+        "courier_company": ""
+    }
+
+    shipping_point_max_motor = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum") or 0
+    shipping_point_max_mobil = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum") or 0
+    shipping_point_max_mobil_tumpeng = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum_tumpeng") or 0
+    shipping_point_max_mobil_tampah = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum_tampah") or 0
+    shipping_point_max_van = frappe.get_value("Delivery Vehicle Type", "Van", "shipping_point_maximum") or 0
+    shipping_point_max_van_tumpeng = frappe.get_value("Delivery Vehicle Type", "Van", "shipping_point_maximum_tumpeng") or 0
+    shipping_point_max_van_tampah = frappe.get_value("Delivery Vehicle Type", "Van", "shipping_point_maximum_tampah") or 0
+
+    if (total_shipping_point <= shipping_point_max_motor) and (shipping_category not in ["Tumpeng", "Tampah"]):
+        result["vehicle_type"] = "motor"
+        result["courier_type"] = "instant"
+        result["courier_company"] = "gojek"
+
+    if (shipping_category == "Tumpeng"):
+        if (total_shipping_point <= shipping_point_max_mobil_tumpeng):
+            result["vehicle_type"] = "mobil"
+            result["courier_type"] = "instant_car"
+            result["courier_company"] = "grab"
+        elif (total_shipping_point > shipping_point_max_mobil_tumpeng) and (total_shipping_point <= shipping_point_max_van_tumpeng):
+            result["vehicle_type"] = "van"
+            result["courier_type"] = "van"
+            result["courier_company"] = "deliveree"
+    elif (shipping_category == "Tampah"):
+        if (total_shipping_point <= shipping_point_max_mobil_tampah):
+            result["vehicle_type"] = "mobil"
+            result["courier_type"] = "instant_car"
+            result["courier_company"] = "grab"
+        elif (total_shipping_point > shipping_point_max_mobil_tampah) and (total_shipping_point <= shipping_point_max_van_tampah):
+            result["vehicle_type"] = "van"
+            result["courier_type"] = "van"
+            result["courier_company"] = "deliveree"
+    else:
+        if (total_shipping_point > shipping_point_max_motor) and (total_shipping_point <= shipping_point_max_mobil):
+            result["vehicle_type"] = "mobil"
+            result["courier_type"] = "instant_car"
+            result["courier_company"] = "grab"
+        elif (total_shipping_point > shipping_point_max_mobil) and (total_shipping_point <= shipping_point_max_van):
+            result["vehicle_type"] = "van"
+            result["courier_type"] = "van"
+            result["courier_company"] = "deliveree"
+
+    return result
+
+@frappe.whitelist()
+def get_packaging_type(vehicle_type, total_shipping_point):
+    result = {
+        "packaging_A": 0,
+        "packaging_B": 0,
+        "packaging_C": 0
+    }
+
+    max_packaging_A = frappe.get_value("Shipping Packaging", "Plastik Kecil", "kapasitas_shipping_point")
+    max_packaging_B = frappe.get_value("Shipping Packaging", "Masterbox Kecil", "kapasitas_shipping_point")
+    max_packaging_C = frappe.get_value("Shipping Packaging", "Masterbox Besar", "kapasitas_shipping_point")
+
+    if vehicle_type.lower() == "motor":
+        max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum")
+        if total_shipping_point >= 1 and total_shipping_point <= 6:
+            result["packaging_A"] += 1
+        elif total_shipping_point >= 7 and total_shipping_point <= 80:
+            if max_packaging_C:
+                temp_c = total_shipping_point/max_packaging_C
+                result["packaging_C"] += floor(temp_c)
+                if result["packaging_C"] != 0:
+                    temp_b = total_shipping_point % max_packaging_C
+                    if temp_b >= 7:
+                        if max_packaging_B:
+                            temp_a = temp_b/max_packaging_B
+                            result["packaging_B"] += floor(temp_a)
+                            if result["packaging_B"] != 0:
+                                temp_o = temp_b % max_packaging_B
+                                if temp_o >= 7:
+                                    result["packaging_B"] += 1
+                                elif temp_o < 7:
+                                    result["packaging_A"] = 1
+                    elif temp_b != 0 and temp_b < 7:
+                        result["packaging_A"] = 1
+                else:
+                    temp_b = total_shipping_point/max_packaging_B
+                    if temp_b != 0:
+                        temp_a = temp_b % max_packaging_B
+                        if temp_a >= 7:
+                            result["packaging_B"] += 1
+                        elif temp_a != 0 and temp_a < 7:
+                            result["packaging_A"] = 1
+
+    if vehicle_type.lower() == "mobil":
+        min_shipping_point = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum") + 1
+        max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum")
+
+        if total_shipping_point >= 81 and total_shipping_point <= 240:
+            temp_b = total_shipping_point/max_packaging_B
+            result["packaging_B"] += floor(temp_b)
+            if result["packaging_B"] != 0:
+                temp_a = total_shipping_point % max_packaging_B
+                if temp_a >= 7:
+                    result["packaging_B"] += 1
+                elif temp_a != 0 and temp_a < 7:
+                    result["packaging_A"] = 1
+            else:
+                temp_a = total_shipping_point/max_packaging_A
+                result["packaging_A"] = floor(temp_a)
+                if result["packaging_A"] != 0:
+                    temp_o = total_shipping_point % max_packaging_A
+                    if temp_o != 0:
+                        result["packaging_A"] += 1
+
+    if vehicle_type.lower() == "Van":
+        min_shipping_point = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum") + 1
+        max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Van", "shipping_point_maximum")
+
+        if total_shipping_point >= 241 and total_shipping_point <= 1512:
+            temp_b = total_shipping_point / max_packaging_B
+            result["packaging_B"] = floor(temp_b)
+            if result["packaging_B"] != 0:
+                temp_a = total_shipping_point % max_packaging_B
+                if temp_a >= 7:
+                    result["packaging_B"] += 1
+                elif temp_a != 0 and temp_a < 7:
+                    result["packaging_A"] = 1
+            else:
+                temp_a = total_shipping_point / max_packaging_A
+                result["packaging_A"] = floor(temp_a)
+                if result["packaging_A"] != 0:
+                    temp_o = total_shipping_point % max_packaging_A
+                    if temp_o != 0:
+                        result["packaging_A"] += 1
+
+    return result

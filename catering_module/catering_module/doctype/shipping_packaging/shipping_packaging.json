@@ -1,33 +1,31 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:item_category",
- "creation": "2023-09-01 11:45:00.532632",
+ "autoname": "field:tipe_packaging",
+ "creation": "2023-12-06 12:07:48.030820",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "item_category",
-  "quantity_per_master_box",
+  "tipe_packaging",
+  "kapasitas_shipping_point",
   "dimension_height",
-  "dimension_length",
   "dimension_width",
   "dimension_depth",
   "dimension_weight"
  ],
  "fields": [
   {
-   "fieldname": "item_category",
-   "fieldtype": "Link",
-   "label": "Item Category",
-   "options": "Catering Item Category",
+   "fieldname": "tipe_packaging",
+   "fieldtype": "Data",
+   "label": "Tipe Packaging",
    "unique": 1
   },
   {
-   "fieldname": "quantity_per_master_box",
+   "fieldname": "kapasitas_shipping_point",
    "fieldtype": "Int",
-   "label": "Quantity Per Master Box"
+   "label": "Kapasitas Shipping Point"
   },
   {
    "fieldname": "dimension_height",
@@ -48,19 +46,14 @@
    "fieldname": "dimension_weight",
    "fieldtype": "Int",
    "label": "Dimension Weight"
-  },
-  {
-   "fieldname": "dimension_length",
-   "fieldtype": "Int",
-   "label": "Dimension Length"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-07 14:28:12.040142",
+ "modified": "2023-12-06 12:07:48.030820",
  "modified_by": "Administrator",
  "module": "Catering Module",
- "name": "Catering Masterbox",
+ "name": "Shipping Packaging",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
