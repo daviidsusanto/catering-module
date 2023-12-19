@@ -99,18 +99,17 @@ frappe.ui.form.on('Custom Production Plan', {
 				// 	}, __('Create'));
 				// }
 				
-				if (frm.doc.mr_items && frm.doc.mr_items.length && !frm.doc.created_mr_and_po && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
-					frm.add_custom_button(__("Material Request & Purchase Order"), ()=> {
-						frm.trigger("make_material_request_and_po");
-					}, __('Create'));
-				}
+				// if (frm.doc.mr_items && frm.doc.mr_items.length && !frm.doc.created_mr_and_po && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
+				// 	frm.add_custom_button(__("Material Request & Purchase Order"), ()=> {
+				// 		frm.trigger("make_material_request_and_po");
+				// 	}, __('Create'));
+				// }
 
-				if (frm.doc.po_items && !frm.doc.created_wo && frm.doc.status !== "Closed") {
-					frm.add_custom_button(__("Work Order"), ()=> {
-						frm.trigger("make_work_order");
-						// frm.trigger("printing");
-					}, __('Create'));
-				}
+				// if (frm.doc.po_items && !frm.doc.created_wo && frm.doc.status !== "Closed") {
+				// 	frm.add_custom_button(__("Work Order"), ()=> {
+				// 		frm.trigger("make_work_order");
+				// 	}, __('Create'));
+				// }
 
 				// if (frm.doc.mr_items && frm.doc.mr_items.length && !in_list(['Material Requested', 'Closed'], frm.doc.status)) {
 				// 	frm.add_custom_button(__("Material Request"), ()=> {
