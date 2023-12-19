@@ -295,6 +295,7 @@ def make_so(data, cust_id):
     so.slot_pengiriman = data.get('slot_pengiriman')
     so.delivery_date = data.get('delivery_date')
     so.jam_pengiriman = data.get('jam_pengiriman')
+    so.approval_code = data.get('approval_code')
     so.order_notes = data.get('order_notes')
     so.estimasi_jam_pengiriman = data.get('estimasi_jam_pengiriman')
     so.shipping_address_name = frappe.get_value("Customer", cust_id, "customer_primary_address")
