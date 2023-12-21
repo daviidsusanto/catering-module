@@ -8,6 +8,11 @@ import locale
 import math
 from collections import defaultdict
 
+import urllib.request
+from itertools import groupby
+from operator import itemgetter
+from datetime import datetime
+
 import frappe
 from frappe import _, msgprint
 from frappe.model.document import Document
@@ -43,6 +48,9 @@ class CustomProductionPlan(Document):
 		self.set_status()
 		self._rename_temporary_references()
 		validate_uom_is_integer(self, "stock_uom", "planned_qty")
+		# self.create_catering_pick_list()
+		self.auto_print()
+
 
 	def set_pending_qty_in_row_without_reference(self):
 		"Set Pending Qty in independent rows (not from SO or MR)."
@@ -102,6 +110,9 @@ class CustomProductionPlan(Document):
 					"sales_order_date": data.transaction_date,
 					"customer": data.customer,
 					"grand_total": data.base_grand_total,
+					"delivery_date": data.delivery_date,
+					"distribution_point": data.distribution_point,
+					"slot_pengiriman": data.slot_pengiriman,
 				},
 			)
 
@@ -408,6 +419,7 @@ class CustomProductionPlan(Document):
 		self.make_work_order()
 		self.make_material_request_and_po()
 		self.create_catering_pick_list()
+		# self.auto_print()
 
 	def on_cancel(self):
 		self.db_set("status", "Cancelled")
@@ -427,10 +439,37 @@ class CustomProductionPlan(Document):
 		):
 			frappe.delete_doc("Work Order", d.name)
 
+	def auto_print(self):
+		apm = frappe.get_all("Auto Print Mapping",{"doctype_trigger_print": self.doctype})
+		print(apm)
+		##lanjutin lagi##
+
 	def create_catering_pick_list(self):
-		pass
-		# pl = frappe.new_doc("Catering Pick List")
-		# pl.
+		so = []
+		for i in self.sales_orders:
+			so.append({'sales_order': i.sales_order,'delivery_date': i.delivery_date,'distribution_point': i.distribution_point,'slot_pengiriman': i.slot_pengiriman})
+		
+		sorted_data = sorted(so, key=itemgetter('distribution_point', 'delivery_date'))
+
+		grouped_data = {key: list(group) for key, group in groupby(sorted_data, key=itemgetter('distribution_point', 'delivery_date'))}
+
+		for key, group in grouped_data.items():
+			pl = frappe.new_doc("Catering Pick List")
+			pl.delivery_status = 'Undelivered'
+			for item in group:
+				so = frappe.get_doc("Sales Order",item["sales_order"])
+				for i in so.items:
+					pl.append("locations",{
+						"item_code": i.item_code,
+						"warehouse": i.warehouse,
+						"qty": i.qty,
+						"stock_qty": i.qty,
+						"uom": i.uom,
+						"stock_uom": i.uom,
+						"sales_order": item["sales_order"]
+					})
+			pl.save()
+			pl.submit()
 		
 	@frappe.whitelist()
 	def set_status(self, close=None):
@@ -1374,7 +1413,7 @@ def get_sales_orders(self):
 	open_so_query = (
 		frappe.qb.from_(so)
 		.from_(so_item)
-		.select(so.name, so.transaction_date, so.customer, so.base_grand_total)
+		.select(so.name, so.transaction_date, so.customer, so.base_grand_total, so.delivery_date, so.slot_pengiriman, so.distribution_point)
 		.distinct()
 		.where(
 			(so_item.parent == so.name)
