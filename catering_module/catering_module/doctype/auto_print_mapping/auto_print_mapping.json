@@ -11,6 +11,7 @@
   "doctype_trigger_print",
   "doctype_parent",
   "print_format_name",
+  "printer_name",
   "ip_printer"
  ],
  "fields": [
@@ -35,11 +36,16 @@
    "fieldname": "ip_printer",
    "fieldtype": "Data",
    "label": "IP Printer"
+  },
+  {
+   "fieldname": "printer_name",
+   "fieldtype": "Data",
+   "label": "Printer Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-12-06 11:09:01.642617",
+ "modified": "2023-12-21 14:06:45.842590",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Auto Print Mapping",

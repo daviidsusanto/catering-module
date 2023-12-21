@@ -54,7 +54,7 @@ def override_rate_is_free_item(doc,name):
     doc.delivery_date_custom = doc.delivery_date
 
 def create_sales_invoice(doc,name):
-    if doc.order_type_2 == "Online Shop" and doc.docstatus == 0:
+    if doc.order_type_2 == "Online Shop" and doc.docstatus == 1:
         si = frappe.new_doc("Sales Invoice")
         si.customer = doc.customer
         si.posting_date = doc.transaction_date

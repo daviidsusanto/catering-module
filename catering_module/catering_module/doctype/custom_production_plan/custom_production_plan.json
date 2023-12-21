@@ -192,7 +192,7 @@
    "fieldtype": "Table",
    "label": "Sales Orders",
    "no_copy": 1,
-   "options": "Production Plan Sales Order"
+   "options": "Custom Production Plan Sales Order"
   },
   {
    "collapsible": 1,
@@ -468,7 +468,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-07-21 12:21:56.594111",
+ "modified": "2023-12-21 14:42:39.759732",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Custom Production Plan",
