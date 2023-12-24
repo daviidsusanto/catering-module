@@ -299,8 +299,8 @@ def make_so(data, cust_id):
     so.order_notes = data.get('order_notes')
     so.estimasi_jam_pengiriman = data.get('estimasi_jam_pengiriman')
     so.shipping_address_name = frappe.get_value("Customer", cust_id, "customer_primary_address")
-    # so.courier_type = data.get('courier_type') #Tentuin pake logic
-    # so.courier_company = data.get('courier_company') #Tentuin pake logic
+    so.courier_type = data.get('courier_type')
+    so.courier_company = data.get('courier_company')
     if data.get('custom_design'):
         for i in data.get('custom_design'):
             so.append('custom_design', {
@@ -308,9 +308,6 @@ def make_so(data, cust_id):
                 'design_file_original': i.get('design_file_original'),
                 'design_file_with_order_data': i.get('design_file_with_order_data')
             })
-    total_shipping_point = 0
-    shipping_item_category_list = []
-    shipping_item_category = ""
     if data.get('order_details'):
         for j in data.get('order_details'):
             item = frappe.get_doc("Item", {"item_name": j.get('item_code')})
@@ -334,17 +331,6 @@ def make_so(data, cust_id):
                     'item_category': item.shipping_item_category,
                     'size': item.shipping_point
                 })
-            total_shipping_point += int(item.shipping_point) or 0
-            shipping_item_category_list.append(item.shipping_item_category)
-
-        if "Tumpeng" in shipping_item_category_list or "Tampah" in shipping_item_category_list:
-            shipping_item_category = "Tumpeng"
-        else:
-            shipping_item_category = [val for val in shipping_item_category_list if val not in ["tumpeng", "tampah"]][0]
-
-    # Logic Decide Vehicle Type
-    __get_vehicle_type = get_vehicle_type(int(total_shipping_point), shipping_item_category)
-
     if data.get('promotions'):
          for k in data.get('promotions'):
             promotions = frappe.get_all("Promotion Program", fields=["*"], filters={"name": k['description']})
@@ -358,8 +344,6 @@ def make_so(data, cust_id):
                     'tax_amount': amount
                 })
 
-    so.courier_type = __get_vehicle_type.get("courier_type")
-    so.courier_company = __get_vehicle_type.get("courier_company")
     so.save()
     so.submit()
     return so
@@ -548,75 +532,129 @@ def check_rates(data):
         res = {}
         data_order = {}
         url = "/v1/rates/couriers"
-        size = 0
         item_orders = []
         category = []
-        for i in data.get('order_details'):
-            if i.get("item_category") not in category:
-                category.append(i.get("item_category"))
-            size += int(i.get("size") * i.get("qty"))
-            item_orders.append({
-                "id" : frappe.get_value("Item",{"item_name": i.get("item_code")},"item_code"),
-                "name" : i.get("item_code"),
-                "image" : "",
-                "description" : frappe.get_value("Item", frappe.get_value("Item",{"item_name": i.get("item_code")},"name"), "description"),
-                "value" : i.get("rate") * i.get("qty"),
-                "quantity" : i.get("qty"),
-                ####perlu diupdate lagi#######
-                "height": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_height"),
-                "length": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_depth"),
-                "weight": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_weight"),
-                "width": frappe.get_value("Shipping Packaging", i.get("tipe_packaging"), "dimension_width")
-            })
-        if size <= 20 and "Tumpeng" not in category and "Tampah" not in category:
-            # travel_mode = "TWO_WHEELER"
-            type_courier = "instant"
+        total_shipping_point = 0
+
+        for i in data.get("order_details"):
+            size = 0
+            shipping_point = frappe.get_value("Item",{"item_name": i.get("item_code")}, "shipping_point") or 0
+            size += int(shipping_point) * i.get("qty")
+            total_shipping_point += int(size) or 0
+            category.append(frappe.get_value("Item",{"item_name": i.get("item_code")}, "shipping_item_category"))
+
+        tumpeng = 0
+        tampah = 0
+        if "Tumpeng" in category:
+            shipping_item_category = "Tumpeng"
+            tumpeng = 1
+        elif "Tampah" in category:
+            shipping_item_category = "Tampah"
+            tampah = 1
         else:
-            # travel_mode = "DRIVE"
-            type_courier = "instant_car"
-        
+            shipping_item_category = [val for val in category if val not in ["tumpeng", "tampah"]][0]
+
+         # Logic Get Vehicle Type
+        __get_vehicle_type = get_vehicle_type(int(total_shipping_point), shipping_item_category)
+
+        # Logic Get Packaging Type
+        __get_packaging_type = get_packaging_type(__get_vehicle_type.get("vehicle_type"), int(total_shipping_point), tumpeng, tampah)
+
+        if __get_packaging_type:
+            if int(__get_packaging_type.get("packaging_plastik_kecil")) > 0:
+                packaging_id = "Plastik Kecil"
+                item_orders.append({
+                    "name" : packaging_id,
+                    "description" : packaging_id,
+                    "value" : 1,
+                    "quantity" : int(__get_packaging_type.get("packaging_plastik_kecil")),
+                    "height": frappe.get_value("Shipping Packaging", packaging_id, "dimension_height"),
+                    "length": frappe.get_value("Shipping Packaging", packaging_id, "dimension_depth"),
+                    "weight": frappe.get_value("Shipping Packaging", packaging_id, "dimension_weight"),
+                    "width": frappe.get_value("Shipping Packaging", packaging_id, "dimension_width")
+                })
+
+            if int(__get_packaging_type.get("packaging_masterbox_kecil")) > 0:
+                packaging_id = "Masterbox Kecil"
+                item_orders.append({
+                    "name" : packaging_id,
+                    "description" : packaging_id,
+                    "value" : 1,
+                    "quantity" : int(__get_packaging_type.get("packaging_masterbox_kecil")),
+                    "height": frappe.get_value("Shipping Packaging", packaging_id, "dimension_height"),
+                    "length": frappe.get_value("Shipping Packaging", packaging_id, "dimension_depth"),
+                    "weight": frappe.get_value("Shipping Packaging", packaging_id, "dimension_weight"),
+                    "width": frappe.get_value("Shipping Packaging", packaging_id, "dimension_width")
+                })
+
+            if int(__get_packaging_type.get("packaging_masterbox_besar")) > 0:
+                packaging_id = "Masterbox Besar"
+                item_orders.append({
+                    "name" : packaging_id,
+                    "description" : packaging_id,
+                    "value" : 1,
+                    "quantity" : int(__get_packaging_type.get("packaging_masterbox_besar")),
+                    "height": frappe.get_value("Shipping Packaging", packaging_id, "dimension_height"),
+                    "length": frappe.get_value("Shipping Packaging", packaging_id, "dimension_depth"),
+                    "weight": frappe.get_value("Shipping Packaging", packaging_id, "dimension_weight"),
+                    "width": frappe.get_value("Shipping Packaging", packaging_id, "dimension_width")
+                })
+
+            # if int(__get_packaging_type.get("packaging_tumpeng")) > 0:
+            #     packaging_id = "Tumpeng"
+            #     item_orders.append({
+            #         "name" : packaging_id,
+            #         "description" : packaging_id,
+            #         "value" : 0,
+            #         "quantity" : int(__get_packaging_type.get("packaging_tumpeng")),
+            #         "height": frappe.get_value("Shipping Packaging", packaging_id, "dimension_height"),
+            #         "length": frappe.get_value("Shipping Packaging", packaging_id, "dimension_depth"),
+            #         "weight": frappe.get_value("Shipping Packaging", packaging_id, "dimension_weight"),
+            #         "width": frappe.get_value("Shipping Packaging", packaging_id, "dimension_width")
+            #     })
+
         dist_point = dist_point_check(data.get("gps_lat_customer"),data.get("gps_long_customer"))
 
+        data_order.update({
+            "origin_latitude": float(dist_point.gps_lat_distribution_point),
+            "origin_longitude": float(dist_point.gps_long_distribution_point),
+            "destination_latitude": float(data.get("gps_lat_customer")),
+            "destination_longitude": float(data.get("gps_long_customer")),
+            "couriers": __get_vehicle_type.get("courier_company"),
+        })
+
+        data_order.update({
+            "items": item_orders
+        })
+
         # data_order.update({
-        #     "origin_latitude": float(dist_point.gps_lat_distribution_point),
-        #     "origin_longitude": float(dist_point.gps_long_distribution_point),
-        #     "destination_latitude": float(data.get("latitude")),
-        #     "destination_longitude": float(data.get("longitude")),
+        #     "origin_latitude": -6.2253114,
+        #     "origin_longitude": 106.7993735,
+        #     "destination_latitude": -6.28927,
+        #     "destination_longitude": 106.77492000000007,
         #     "couriers":"grab",
         # })
-
         # data_order.update({
-        #     "items": item_orders
+        #     "items":[{
+        #     "id" : "5db7ee67382e185bd6a14608",
+        #     "name" : "Black L",
+        #     "image" : "",
+        #     "description" : "White Shirt",
+        #     "value" : 165000,
+        #     "quantity" : 1,
+        #     "height" : 10,
+        #     "length" : 10,
+        #     "weight" : 200,
+        #     "width" :10
+        # }]
         #     })
-
-        data_order.update({
-            "origin_latitude": -6.2253114,
-            "origin_longitude": 106.7993735,
-            "destination_latitude": -6.28927,
-            "destination_longitude": 106.77492000000007,
-            "couriers":"grab",
-        })
-        data_order.update({
-            "items":[{
-            "id" : "5db7ee67382e185bd6a14608",
-            "name" : "Black L",
-            "image" : "",
-            "description" : "White Shirt",
-            "value" : 165000,
-            "quantity" : 1,
-            "height" : 10,
-            "length" : 10,
-            "weight" : 200,
-            "width" :10
-        }]
-            })
         
         res = base_api(url, 'POST', json.dumps(data_order))
         output = {}
         if res:
             if res["code"] == 20001009:
                 for i in res["pricing"]:
-                    if type_courier == i["type"]:
+                    if __get_vehicle_type.get("courier_type") == i["type"]:
                         output.update({
                             "price": i["price"],
                             "type": i["type"],
@@ -719,88 +757,102 @@ def get_vehicle_type(total_shipping_point, shipping_category):
     return result
 
 @frappe.whitelist()
-def get_packaging_type(vehicle_type, total_shipping_point):
+def get_packaging_type(vehicle_type, total_shipping_point, tumpeng=None, tampah=None):
     result = {
-        "packaging_A": 0,
-        "packaging_B": 0,
-        "packaging_C": 0
+        "packaging_plastik_kecil": 0,
+        "packaging_masterbox_kecil": 0,
+        "packaging_masterbox_besar": 0,
+        "packaging_tumpeng": 0,
+        "packaging_tampah": 0
     }
 
-    max_packaging_A = frappe.get_value("Shipping Packaging", "Plastik Kecil", "kapasitas_shipping_point")
-    max_packaging_B = frappe.get_value("Shipping Packaging", "Masterbox Kecil", "kapasitas_shipping_point")
-    max_packaging_C = frappe.get_value("Shipping Packaging", "Masterbox Besar", "kapasitas_shipping_point")
+    max_packaging_plastik_kecil = frappe.get_value("Shipping Packaging", "Plastik Kecil", "kapasitas_shipping_point")
+    max_packaging_masterbox_kecil = frappe.get_value("Shipping Packaging", "Masterbox Kecil", "kapasitas_shipping_point")
+    max_packaging_masterbox_besar = frappe.get_value("Shipping Packaging", "Masterbox Besar", "kapasitas_shipping_point")
+    max_packaging_tumpeng = 60
+    max_packaging_tampah = 60
 
     if vehicle_type.lower() == "motor":
         max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum")
         if total_shipping_point >= 1 and total_shipping_point <= 6:
-            result["packaging_A"] += 1
+            result["packaging_plastik_kecil"] += 1
         elif total_shipping_point >= 7 and total_shipping_point <= 80:
-            if max_packaging_C:
-                temp_c = total_shipping_point/max_packaging_C
-                result["packaging_C"] += floor(temp_c)
-                if result["packaging_C"] != 0:
-                    temp_b = total_shipping_point % max_packaging_C
+            if max_packaging_masterbox_besar:
+                temp_c = total_shipping_point/max_packaging_masterbox_besar
+                result["packaging_masterbox_besar"] += floor(temp_c)
+                if result["packaging_masterbox_besar"] != 0:
+                    temp_b = total_shipping_point % max_packaging_masterbox_besar
                     if temp_b >= 7:
-                        if max_packaging_B:
-                            temp_a = temp_b/max_packaging_B
-                            result["packaging_B"] += floor(temp_a)
-                            if result["packaging_B"] != 0:
-                                temp_o = temp_b % max_packaging_B
+                        if max_packaging_masterbox_kecil:
+                            temp_a = temp_b/max_packaging_masterbox_kecil
+                            result["packaging_masterbox_kecil"] += floor(temp_a)
+                            if result["packaging_masterbox_kecil"] != 0:
+                                temp_o = temp_b % max_packaging_masterbox_kecil
                                 if temp_o >= 7:
-                                    result["packaging_B"] += 1
+                                    result["packaging_masterbox_kecil"] += 1
                                 elif temp_o < 7:
-                                    result["packaging_A"] = 1
+                                    result["packaging_plastik_kecil"] = 1
                     elif temp_b != 0 and temp_b < 7:
-                        result["packaging_A"] = 1
+                        result["packaging_plastik_kecil"] = 1
                 else:
-                    temp_b = total_shipping_point/max_packaging_B
+                    temp_b = total_shipping_point/max_packaging_masterbox_kecil
                     if temp_b != 0:
-                        temp_a = temp_b % max_packaging_B
+                        temp_a = temp_b % max_packaging_masterbox_kecil
                         if temp_a >= 7:
-                            result["packaging_B"] += 1
+                            result["packaging_masterbox_kecil"] += 1
                         elif temp_a != 0 and temp_a < 7:
-                            result["packaging_A"] = 1
+                            result["packaging_plastik_kecil"] = 1
 
     if vehicle_type.lower() == "mobil":
         min_shipping_point = frappe.get_value("Delivery Vehicle Type", "Motor", "shipping_point_maximum") + 1
         max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum")
 
+        if tumpeng:
+            result["packaging_tumpeng"] += 1
+        if tampah:
+            result["packaging_tampah"] += 1
+
         if total_shipping_point >= 81 and total_shipping_point <= 240:
-            temp_b = total_shipping_point/max_packaging_B
-            result["packaging_B"] += floor(temp_b)
-            if result["packaging_B"] != 0:
-                temp_a = total_shipping_point % max_packaging_B
+            temp_b = total_shipping_point/max_packaging_masterbox_kecil
+            result["packaging_masterbox_kecil"] += floor(temp_b)
+            if result["packaging_masterbox_kecil"] != 0:
+                temp_a = total_shipping_point % max_packaging_masterbox_kecil
                 if temp_a >= 7:
-                    result["packaging_B"] += 1
+                    result["packaging_masterbox_kecil"] += 1
                 elif temp_a != 0 and temp_a < 7:
-                    result["packaging_A"] = 1
+                    result["packaging_plastik_kecil"] = 1
             else:
-                temp_a = total_shipping_point/max_packaging_A
-                result["packaging_A"] = floor(temp_a)
-                if result["packaging_A"] != 0:
-                    temp_o = total_shipping_point % max_packaging_A
+                temp_a = total_shipping_point/max_packaging_plastik_kecil
+                result["packaging_plastik_kecil"] = floor(temp_a)
+                if result["packaging_plastik_kecil"] != 0:
+                    temp_o = total_shipping_point % max_packaging_plastik_kecil
                     if temp_o != 0:
-                        result["packaging_A"] += 1
+                        result["packaging_plastik_kecil"] += 1
 
     if vehicle_type.lower() == "Van":
         min_shipping_point = frappe.get_value("Delivery Vehicle Type", "Mobil", "shipping_point_maximum") + 1
         max_shipping_point = frappe.get_value("Delivery Vehicle Type", "Van", "shipping_point_maximum")
 
+        if tumpeng:
+            result["packaging_tumpeng"] += 1
+        if tampah:
+            result["packaging_tampah"] += 1
+
         if total_shipping_point >= 241 and total_shipping_point <= 1512:
-            temp_b = total_shipping_point / max_packaging_B
-            result["packaging_B"] = floor(temp_b)
-            if result["packaging_B"] != 0:
-                temp_a = total_shipping_point % max_packaging_B
+            temp_b = total_shipping_point / max_packaging_masterbox_kecil
+            result["packaging_masterbox_kecil"] = floor(temp_b)
+            if result["packaging_masterbox_kecil"] != 0:
+                temp_a = total_shipping_point % max_packaging_masterbox_kecil
                 if temp_a >= 7:
-                    result["packaging_B"] += 1
+                    result["packaging_masterbox_kecil"] += 1
                 elif temp_a != 0 and temp_a < 7:
-                    result["packaging_A"] = 1
+                    result["packaging_plastik_kecil"] = 1
             else:
-                temp_a = total_shipping_point / max_packaging_A
-                result["packaging_A"] = floor(temp_a)
-                if result["packaging_A"] != 0:
-                    temp_o = total_shipping_point % max_packaging_A
+                temp_a = total_shipping_point / max_packaging_plastik_kecil
+                result["packaging_plastik_kecil"] = floor(temp_a)
+                if result["packaging_plastik_kecil"] != 0:
+                    temp_o = total_shipping_point % max_packaging_plastik_kecil
                     if temp_o != 0:
-                        result["packaging_A"] += 1
+                        result["packaging_plastik_kecil"] += 1
 
     return result
