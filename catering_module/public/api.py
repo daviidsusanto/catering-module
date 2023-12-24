@@ -309,31 +309,42 @@ def make_so(data, cust_id):
                 'design_file_with_order_data': i.get('design_file_with_order_data')
             })
     total_shipping_point = 0
+    shipping_item_category_list = []
+    shipping_item_category = ""
     if data.get('order_details'):
         for j in data.get('order_details'):
-            item_code = frappe.get_value("Item",{"item_name": j.get('item_code')},"item_code")
+            item = frappe.get_doc("Item", {"item_name": j.get('item_code')})
             if j.get('is_free_item'):
                 so.append('items', {
-                    'item_code': item_code,
+                    'item_code': item.item_code,
                     'qty': j.get('qty'),
                     'is_free_item': True,
                     'rate': 0,
                     'amount': 0,
-                    'item_category': frappe.get_value("Item",{"item_code": item_code},"shipping_item_category"),
-                    'size': frappe.get_value("Item",{"item_code": item_code},"shipping_point")
+                    'item_category': item.shipping_item_category,
+                    'size': item.shipping_point
                 })
-                total_shipping_point += frappe.get_value("Item",{"item_code": item_code},"shipping_point") or 0
             else:
                 so.append('items', {
-                    'item_code': item_code,
+                    'item_code': item.item_code,
                     'qty': j.get('qty'),
                     'is_free_item': False,
                     'rate': j.get('rate'),
                     'amount': int(j.get('rate')) * int(j.get('qty')),
-                    'item_category': frappe.get_value("Item",{"item_code": item_code},"shipping_item_category"),
-                    'size': frappe.get_value("Item",{"item_code": item_code},"shipping_point")
+                    'item_category': item.shipping_item_category,
+                    'size': item.shipping_point
                 })
-                total_shipping_point += frappe.get_value("Item",{"item_code": item_code},"shipping_point") or 0
+            total_shipping_point += int(item.shipping_point) or 0
+            shipping_item_category_list.append(item.shipping_item_category)
+
+        if "Tumpeng" in shipping_item_category_list or "Tampah" in shipping_item_category_list:
+            shipping_item_category = "Tumpeng"
+        else:
+            shipping_item_category = [val for val in shipping_item_category_list if val not in ["tumpeng", "tampah"]][0]
+
+    # Logic Decide Vehicle Type
+    __get_vehicle_type = get_vehicle_type(int(total_shipping_point), shipping_item_category)
+
     if data.get('promotions'):
          for k in data.get('promotions'):
             promotions = frappe.get_all("Promotion Program", fields=["*"], filters={"name": k['description']})
@@ -346,7 +357,7 @@ def make_so(data, cust_id):
                     'description': promotions[0].description,
                     'tax_amount': amount
                 })
-    __get_vehicle_type = get_vehicle_type(int(total_shipping_point), "Box")
+
     so.courier_type = __get_vehicle_type.get("courier_type")
     so.courier_company = __get_vehicle_type.get("courier_company")
     so.save()
@@ -674,6 +685,10 @@ def get_vehicle_type(total_shipping_point, shipping_category):
             result["vehicle_type"] = "van"
             result["courier_type"] = "van"
             result["courier_company"] = "deliveree"
+        elif (total_shipping_point > shipping_point_max_van):
+            result["vehicle_type"] = "van"
+            result["courier_type"] = "van"
+            result["courier_company"] = "deliveree"
     elif (shipping_category == "Tampah"):
         if (total_shipping_point <= shipping_point_max_mobil_tampah):
             result["vehicle_type"] = "mobil"
@@ -683,12 +698,20 @@ def get_vehicle_type(total_shipping_point, shipping_category):
             result["vehicle_type"] = "van"
             result["courier_type"] = "van"
             result["courier_company"] = "deliveree"
+        elif (total_shipping_point > shipping_point_max_van):
+            result["vehicle_type"] = "van"
+            result["courier_type"] = "van"
+            result["courier_company"] = "deliveree"
     else:
         if (total_shipping_point > shipping_point_max_motor) and (total_shipping_point <= shipping_point_max_mobil):
             result["vehicle_type"] = "mobil"
             result["courier_type"] = "instant_car"
             result["courier_company"] = "grab"
         elif (total_shipping_point > shipping_point_max_mobil) and (total_shipping_point <= shipping_point_max_van):
+            result["vehicle_type"] = "van"
+            result["courier_type"] = "van"
+            result["courier_company"] = "deliveree"
+        elif (total_shipping_point > shipping_point_max_van):
             result["vehicle_type"] = "van"
             result["courier_type"] = "van"
             result["courier_company"] = "deliveree"
