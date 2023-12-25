@@ -6,6 +6,7 @@ import random
 import string
 from itertools import groupby
 from frappe.model.mapper import get_mapped_doc
+from assets.catering_module.api import get_packaging_type, get_vehicle_type
 
 def generate_barcode_so(doc,name):
     if doc.order_type_2 == "Online Shop":
@@ -14,11 +15,67 @@ def generate_barcode_so(doc,name):
             num_strings = math.ceil(int(doc.total_qty) / 10)
             generated_strings = set()
 
+            total_shipping_point = 0
+            category = []
+
             data = []
             for j in doc.items:
+                size = 0
+                shipping_point = frappe.get_value("Item",{"item_name": j.item_code}, "shipping_point") or 0
+                size += int(shipping_point) * j.qty
+                total_shipping_point += int(size) or 0
+                category.append(frappe.get_value("Item",{"item_name": j.item_code}, "shipping_item_category"))
+
                 data.append({'qty': j.qty,'item_category': j.item_category})
 
+            tumpeng_tampah = 0
+            if "Tumpeng" in category or "Tampah" in category:
+                shipping_item_category = "Tumpeng"
+                tumpeng_tampah = 1
+            else:
+                shipping_item_category = [val for val in category if val not in ["tumpeng", "tampah"]][0]
+
+            # Logic Get Vehicle Type
+            __get_vehicle_type = get_vehicle_type(int(total_shipping_point), shipping_item_category)
+
+            # Logic Get Packaging Type
+            __get_packaging_type = get_packaging_type(__get_vehicle_type.get("vehicle_type"), int(total_shipping_point), tumpeng_tampah)
+
+            doc.custom_shipping_packaging = []
+            if __get_packaging_type:
+                if int(__get_packaging_type.get("packaging_plastik_kecil")) > 0:
+                    packaging_id = "Plastik Kecil"
+                    doc.append('custom_shipping_packaging',{
+                        'type_packaging': packaging_id,
+                        'qty': __get_packaging_type.get("packaging_plastik_kecil")
+                    })
+                if int(__get_packaging_type.get("packaging_masterbox_kecil")) > 0:
+                    packaging_id = "Masterbox Kecil"
+                    doc.append('custom_shipping_packaging',{
+                        'type_packaging': packaging_id,
+                        'qty': __get_packaging_type.get("packaging_masterbox_kecil")
+                    })
+                if int(__get_packaging_type.get("packaging_masterbox_besar")) > 0:
+                    packaging_id = "Masterbox Besar"
+                    doc.append('custom_shipping_packaging',{
+                        'type_packaging': packaging_id,
+                        'qty': __get_packaging_type.get("packaging_masterbox_besar")
+                    })
+                if int(__get_packaging_type.get("packaging_tumpeng")) > 0:
+                    packaging_id = "Tumpeng"
+                    doc.append('custom_shipping_packaging',{
+                        'type_packaging': packaging_id,
+                        'qty': __get_packaging_type.get("packaging_tumpeng")
+                    })
+                if int(__get_packaging_type.get("packaging_tampah")) > 0:
+                    packaging_id = "Tampah"
+                    doc.append('custom_shipping_packaging',{
+                        'type_packaging': packaging_id,
+                        'qty': __get_packaging_type.get("packaging_tampah")
+                    })
+
             sorted_data = sorted(data, key=lambda x: x["item_category"] if x["item_category"] else "")
+            print(sorted_data)
 
             result = {
                         key: sum(item["qty"] for item in group)
@@ -26,10 +83,13 @@ def generate_barcode_so(doc,name):
                     }
             mb = 0
             for x in result:
+                print(x)
                 value = result[x]
                 qty_per_master_box = frappe.get_value("Shipping Packaging",{'name': x},'kapasitas_shipping_point')
+                print(qty_per_master_box)
                 if qty_per_master_box:
                     mb += math.ceil(value / qty_per_master_box)
+            print(mb)
 
             for i in range(0,mb):
                 alphanumeric_characters = string.ascii_letters + string.digits
@@ -38,6 +98,7 @@ def generate_barcode_so(doc,name):
                     generated_strings.add(new_string)
                     
             if generated_strings:
+                print("KENAAAA")
                 doc.barcode = []
                 for i in generated_strings:
                     doc.append("barcode",{
