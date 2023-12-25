@@ -8,10 +8,14 @@ import locale
 import math
 from collections import defaultdict
 
-import urllib.request
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+from frappe.utils.password import get_decrypted_password
+
 from itertools import groupby
 from operator import itemgetter
-from datetime import datetime
+# from datetime import datetime
 
 import frappe
 from frappe import _, msgprint
@@ -48,8 +52,6 @@ class CustomProductionPlan(Document):
 		self.set_status()
 		self._rename_temporary_references()
 		validate_uom_is_integer(self, "stock_uom", "planned_qty")
-		# self.create_catering_pick_list()
-		self.auto_print()
 
 
 	def set_pending_qty_in_row_without_reference(self):
@@ -419,7 +421,6 @@ class CustomProductionPlan(Document):
 		self.make_work_order()
 		self.make_material_request_and_po()
 		self.create_catering_pick_list()
-		# self.auto_print()
 
 	def on_cancel(self):
 		self.db_set("status", "Cancelled")
@@ -438,11 +439,6 @@ class CustomProductionPlan(Document):
 			"Work Order", fields=["name"], filters={"docstatus": 0, "custom_production_plan": ("=", self.name)}
 		):
 			frappe.delete_doc("Work Order", d.name)
-
-	def auto_print(self):
-		apm = frappe.get_all("Auto Print Mapping",{"doctype_trigger_print": self.doctype})
-		print(apm)
-		##lanjutin lagi##
 
 	def create_catering_pick_list(self):
 		so = []
@@ -470,6 +466,7 @@ class CustomProductionPlan(Document):
 					})
 			pl.save()
 			pl.submit()
+			self.auto_print("Custom Production Plan", "Pick List" , pl.name)
 		
 	@frappe.whitelist()
 	def set_status(self, close=None):
@@ -568,6 +565,17 @@ class CustomProductionPlan(Document):
 		self.show_list_created_message("Purchase Order", po_list)
 		self.created_wo = 1
 		self.save()
+
+		so_list = []
+		if wo_list:
+			for i in wo_list:
+				self.auto_print("Custom Production Plan", "Work Order" , i)
+				so = frappe.get_doc("Work Order",i)
+				if so.sales_order and so.sales_order not in so_list:
+					so_list.append(so.sales_order)
+
+			for j in so_list:
+				self.auto_print("Custom Production Plan", "Sales Order" , j)
 
 		if not wo_list:
 			frappe.msgprint(_("No Work Orders were created"))
@@ -702,6 +710,29 @@ class CustomProductionPlan(Document):
 		except OverProductionError:
 			pass
 
+	def auto_print(self, doctype, parent, docname):
+		url = frappe.utils.get_url()
+		url_print = ''
+		response = None
+		apm = frappe.db.get_list("Auto Print Mapping",filters={"doctype_trigger_print": doctype,"doctype_parent": parent},fields=["doctype_trigger_print","doctype_parent","print_format_name","ip_printer","printer_name"])
+		if apm:
+			for i in apm:
+				url_print = url + "/app/qz/" + parent + "/" + docname + "/" + i["print_format_name"] + "/" + i["printer_name"]
+		url_print = url_print.replace(' ', '%20')
+
+		session = requests.Session()
+		retry = Retry(connect=3, backoff_factor=1)
+		adapter = HTTPAdapter(max_retries=retry)
+		session.mount('http://', adapter)
+		session.mount('https://', adapter)
+		session.keep_alive = False
+		headers = {
+			"Authorization": "token " + frappe.db.get_value("User", "Administrator", "api_key") + ":" + get_decrypted_password("User", "Administrator", fieldname="api_secret")
+		}
+		if url_print:
+			response = session.get(url_print, headers=headers)
+
+		return response
 
 	@frappe.whitelist()
 	def make_material_request_and_po(self):
