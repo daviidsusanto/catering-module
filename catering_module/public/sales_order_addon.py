@@ -11,14 +11,16 @@ from assets.catering_module.api import get_packaging_type, get_vehicle_type
 def generate_barcode_so(doc,name):
     if doc.order_type_2 == "Online Shop":
         if doc.total_qty > 0:
-            length = 4
-            num_strings = math.ceil(int(doc.total_qty) / 10)
-            generated_strings = set()
+            # length = 4
+            # num_strings = math.ceil(int(doc.total_qty) / 10)
+            # generated_strings = set()
 
             total_shipping_point = 0
             category = []
+            barcode = []
+            length_of_string = 10
 
-            data = []
+            # data = []
             for j in doc.items:
                 size = 0
                 shipping_point = frappe.get_value("Item",{"item_name": j.item_code}, "shipping_point") or 0
@@ -26,7 +28,7 @@ def generate_barcode_so(doc,name):
                 total_shipping_point += int(size) or 0
                 category.append(frappe.get_value("Item",{"item_name": j.item_code}, "shipping_item_category"))
 
-                data.append({'qty': j.qty,'item_category': j.item_category})
+                # data.append({'qty': j.qty,'item_category': j.item_category})
 
             tumpeng_tampah = 0
             if "Tumpeng" in category or "Tampah" in category:
@@ -49,61 +51,80 @@ def generate_barcode_so(doc,name):
                         'type_packaging': packaging_id,
                         'qty': __get_packaging_type.get("packaging_plastik_kecil")
                     })
+                    for pk in range(__get_packaging_type.get("packaging_plastik_kecil")):
+                        random_str = generate_random_string(length_of_string)
+                        barcode.append(doc.name + "-" + random_str)
+                
                 if int(__get_packaging_type.get("packaging_masterbox_kecil")) > 0:
                     packaging_id = "Masterbox Kecil"
                     doc.append('custom_shipping_packaging',{
                         'type_packaging': packaging_id,
                         'qty': __get_packaging_type.get("packaging_masterbox_kecil")
                     })
+                    for mk in range(__get_packaging_type.get("packaging_masterbox_kecil")):
+                        random_str = generate_random_string(length_of_string)
+                        barcode.append(doc.name + "-" + random_str)
+
                 if int(__get_packaging_type.get("packaging_masterbox_besar")) > 0:
                     packaging_id = "Masterbox Besar"
                     doc.append('custom_shipping_packaging',{
                         'type_packaging': packaging_id,
                         'qty': __get_packaging_type.get("packaging_masterbox_besar")
                     })
+                    for mb in range(__get_packaging_type.get("packaging_masterbox_besar")):
+                        random_str = generate_random_string(length_of_string)
+                        barcode.append(doc.name + "-" + random_str)
+
                 if int(__get_packaging_type.get("packaging_tumpeng")) > 0:
                     packaging_id = "Tumpeng"
                     doc.append('custom_shipping_packaging',{
                         'type_packaging': packaging_id,
                         'qty': __get_packaging_type.get("packaging_tumpeng")
                     })
+                    for tp in range(__get_packaging_type.get("packaging_tumpeng")):
+                        random_str = generate_random_string(length_of_string)
+                        barcode.append(doc.name + "-" + random_str)
+
                 if int(__get_packaging_type.get("packaging_tampah")) > 0:
                     packaging_id = "Tampah"
                     doc.append('custom_shipping_packaging',{
                         'type_packaging': packaging_id,
                         'qty': __get_packaging_type.get("packaging_tampah")
                     })
+                    for th in range(__get_packaging_type.get("packaging_tampah")):
+                        random_str = generate_random_string(length_of_string)
+                        barcode.append(doc.name + "-" + random_str)
 
-            sorted_data = sorted(data, key=lambda x: x["item_category"] if x["item_category"] else "")
-            print(sorted_data)
+            # sorted_data = sorted(data, key=lambda x: x["item_category"] if x["item_category"] else "")
+            # print(sorted_data)
 
-            result = {
-                        key: sum(item["qty"] for item in group)
-                        for key, group in groupby(sorted_data, key=lambda x: x["item_category"])
-                    }
-            mb = 0
-            for x in result:
-                print(x)
-                value = result[x]
-                qty_per_master_box = frappe.get_value("Shipping Packaging",{'name': x},'kapasitas_shipping_point')
-                print(qty_per_master_box)
-                if qty_per_master_box:
-                    mb += math.ceil(value / qty_per_master_box)
-            print(mb)
+            # result = {
+            #             key: sum(item["qty"] for item in group)
+            #             for key, group in groupby(sorted_data, key=lambda x: x["item_category"])
+            #         }
+            # mb = 0
+            # for x in result:
+            #     print(x)
+            #     value = result[x]
+            #     qty_per_master_box = frappe.get_value("Shipping Packaging",{'name': x},'kapasitas_shipping_point')
+            #     print(qty_per_master_box)
+            #     if qty_per_master_box:
+            #         mb += math.ceil(value / qty_per_master_box)
+            # print(mb)
 
-            for i in range(0,mb):
-                alphanumeric_characters = string.ascii_letters + string.digits
-                new_string = ''.join(random.choice(alphanumeric_characters) for _ in range(length)).upper()
-                if new_string not in generated_strings:
-                    generated_strings.add(new_string)
+            # for i in range(0,mb):
+            #     alphanumeric_characters = string.ascii_letters + string.digits
+            #     new_string = ''.join(random.choice(alphanumeric_characters) for _ in range(length)).upper()
+            #     if new_string not in generated_strings:
+            #         generated_strings.add(new_string)
                     
-            if generated_strings:
-                print("KENAAAA")
-                doc.barcode = []
-                for i in generated_strings:
-                    doc.append("barcode",{
-                        "barcode": doc.name + "-" + i
-                    })
+            # if generated_strings:
+            #     print("KENAAAA")
+            #     doc.barcode = []
+            #     for i in generated_strings:
+            #         doc.append("barcode",{
+            #             "barcode": doc.name + "-" + i
+            #         })
 
 def override_rate_is_free_item(doc,name):
     for i in doc.items:
@@ -113,6 +134,12 @@ def override_rate_is_free_item(doc,name):
             i.amount = 0
     
     doc.delivery_date_custom = doc.delivery_date
+
+def generate_random_string():
+    characters = string.ascii_letters + string.digits
+    unique_chars = random.sample(characters, length)
+    random_string = ''.join(unique_chars)
+    return random_string
 
 def create_sales_invoice(doc,name):
     if doc.order_type_2 == "Online Shop" and doc.docstatus == 1:
