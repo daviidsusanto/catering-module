@@ -8,6 +8,7 @@ from itertools import groupby
 from frappe.model.mapper import get_mapped_doc
 from assets.catering_module.api import get_packaging_type, get_vehicle_type
 
+
 def generate_barcode_so(doc,name):
     if doc.order_type_2 == "Online Shop":
         if doc.total_qty > 0:
