@@ -123,7 +123,7 @@ doc_events = {
 	"Sales Order": {
 		"validate": ["catering_module.public.sales_order_addon.generate_barcode_so",
 				"catering_module.public.sales_order_addon.override_rate_is_free_item"],
-		"after_insert": "catering_module.public.sales_order_addon.create_sales_invoice",
+		"on_submit": "catering_module.public.sales_order_addon.create_sales_invoice",
 	},
 	"Stock Entry": {
 		"on_submit": [

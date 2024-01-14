@@ -13,7 +13,7 @@ def generate_barcode_so(doc,name):
         if doc.total_qty > 0:
             total_shipping_point = 0
             category = []
-            length_of_string = 10
+            length_of_string = 4
 
             for j in doc.items:
                 size = 0
@@ -111,7 +111,7 @@ def generate_random_string(length):
     characters = string.ascii_letters + string.digits
     unique_chars = random.sample(characters, length)
     random_string = ''.join(unique_chars)
-    return random_string
+    return random_string.upper()
 
 def create_sales_invoice(doc,name):
     if doc.order_type_2 == "Online Shop" and doc.docstatus == 1:
