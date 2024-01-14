@@ -4,6 +4,7 @@ import requests, traceback
 from datetime import *
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
+from catering_module.public.whatsapp_api import whatsapp_send_late_delivery_notif
 
 
 def base_api(url, type, data=None):
@@ -167,3 +168,13 @@ def late_delivery_handling():
                         __delete_order = delete_order(so.order_id, "Change Courier")
                         so.db_set("custom_courier_status", "Deleted", update_modified=False, notify=True, commit=True)
                         # KIRIM WA
+                        whatsapp_send_notif_order(
+                            so.no_telepon_pic_penerima,
+                            so.online_shop_invoice_no,
+                            so.delivery_date.strftime("%d-%m-%Y"),
+                            so.estimasi_jam_pengiriman,
+                            so.courier_waybill_id,
+                            so.courier_driver_name,
+                            so.courier_driver_phone,
+                            so.courier_link
+                        )
