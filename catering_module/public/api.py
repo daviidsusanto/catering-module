@@ -681,17 +681,17 @@ def check_rates(data):
 
 @frappe.whitelist()
 def check_items(item_code):
-    items = frappe.get_value("Item",item_code)
+    items = frappe.get_list("Item",filters={"name":item_code},fields=["name","shipping_point"])
     if items:
         frappe.response["code"] = 200
         frappe.response["http_status_code"] = 200
         frappe.response["message"] = "Success"
-        frappe.response["data"] = True
+        frappe.response["data"] = items[0]
     else:
         frappe.response["code"] = 404
         frappe.response["http_status_code"] = 404
         frappe.response["message"] = "Data Not Found"
-        frappe.response["data"] = False
+        frappe.response["data"] = None
 
 @frappe.whitelist()
 def get_vehicle_type(total_shipping_point, shipping_category):
