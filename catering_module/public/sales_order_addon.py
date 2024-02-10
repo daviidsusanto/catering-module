@@ -35,6 +35,7 @@ def generate_barcode_so(doc,name):
             # Logic Get Packaging Type
             __get_packaging_type = get_packaging_type(__get_vehicle_type.get("vehicle_type"), int(total_shipping_point), tumpeng_tampah)
 
+
             doc.barcode = []
             doc.custom_shipping_packaging = []
             if __get_packaging_type:
