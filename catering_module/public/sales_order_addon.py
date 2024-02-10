@@ -6,7 +6,7 @@ import random
 import string
 from itertools import groupby
 from frappe.model.mapper import get_mapped_doc
-from assets.catering_module.api import get_packaging_type, get_vehicle_type
+from catering_module.public.api import get_packaging_type, get_vehicle_type
 
 def generate_barcode_so(doc,name):
     if doc.order_type_2 == "Online Shop":
@@ -27,7 +27,7 @@ def generate_barcode_so(doc,name):
                 shipping_item_category = "Tumpeng"
                 tumpeng_tampah = 1
             else:
-                shipping_item_category = [val for val in category if val not in ["tumpeng", "tampah"]][0]
+                shipping_item_category = [val for val in category if val not in ["Tumpeng", "Tampah"]][0]
 
             # Logic Get Vehicle Type
             __get_vehicle_type = get_vehicle_type(int(total_shipping_point), shipping_item_category)
@@ -49,7 +49,6 @@ def generate_barcode_so(doc,name):
                         doc.append('barcode', {
                             'barcode': doc.name + "-" + random_str
                         })
-                        print("kenaaaa")
                 
                 if int(__get_packaging_type.get("packaging_masterbox_kecil")) > 0:
                     packaging_id = "Masterbox Kecil"
