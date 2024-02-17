@@ -4,7 +4,7 @@ import requests, traceback
 from datetime import *
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
-from catering_module.public.whatsapp_api import whatsapp_send_late_delivery_notif
+from catering_module.public.whatsapp_api import *
 
 
 def base_api(url, type, data=None):
@@ -109,7 +109,7 @@ def schedule_orders():
                 "courier_type": so.courier_type,
                 "delivery_type": "scheduled",
                 "delivery_date": so.delivery_date.strftime("%Y-%m-%d"),
-                "delivery_time": str(so.jam_pengiriman - timedelta(minutes=60)),
+                "delivery_time": str(so.jam_pengiriman - timedelta(minutes=int(frappe.db.get_single_value("Catering Module Settings", "schedule_delivery_biteship")))),
                 "order_note": so.order_notes,
                 "items": items
             })
@@ -164,11 +164,12 @@ def late_delivery_handling():
             for item in pl.locations:
                 so = frappe.get_doc("Sales Order", item.sales_order)
                 if so.delivery_date == frappe.utils.nowdate():
-                    if (datetime.strptime(so.jam_pengiriman, '%H:%M:%S') - datetime.strptime(frappe.utils.nowtime(), '%H:%M:%S').total_seconds() <= 300):
+                    if (datetime.strptime(so.jam_pengiriman, '%H:%M:%S') - datetime.strptime(frappe.utils.nowtime(), '%H:%M:%S').total_seconds() <= 
+                        int(frappe.db.get_single_value("Catering Module Settings", "schedule_cancel_biteship"))*60):
                         __delete_order = delete_order(so.order_id, "Change Courier")
                         so.db_set("custom_courier_status", "Deleted", update_modified=False, notify=True, commit=True)
                         # KIRIM WA
-                        whatsapp_send_notif_order(
+                        whatsapp_send_late_delivery_notif(
                             so.no_telepon_pic_penerima,
                             so.online_shop_invoice_no,
                             so.delivery_date.strftime("%d-%m-%Y"),
