@@ -17,10 +17,10 @@ def generate_barcode_so(doc,name):
 
             for j in doc.items:
                 size = 0
-                shipping_point = frappe.get_value("Item",{"item_name": j.item_code}, "shipping_point") or 0
+                shipping_point = frappe.get_value("Item",{"item_name": j.item_name}, "shipping_point") or 0
                 size += int(shipping_point) * j.qty
                 total_shipping_point += int(size) or 0
-                category.append(frappe.get_value("Item",{"item_name": j.item_code}, "shipping_item_category"))
+                category.append(frappe.get_value("Item",{"item_name": j.item_name}, "shipping_item_category"))
 
             tumpeng_tampah = 0
             if "Tumpeng" in category or "Tampah" in category:
@@ -34,7 +34,6 @@ def generate_barcode_so(doc,name):
 
             # Logic Get Packaging Type
             __get_packaging_type = get_packaging_type(__get_vehicle_type.get("vehicle_type"), int(total_shipping_point), tumpeng_tampah)
-
 
             doc.barcode = []
             doc.custom_shipping_packaging = []
@@ -50,7 +49,7 @@ def generate_barcode_so(doc,name):
                         doc.append('barcode', {
                             'barcode': doc.name + "-" + random_str
                         })
-                
+
                 if int(__get_packaging_type.get("packaging_masterbox_kecil")) > 0:
                     packaging_id = "Masterbox Kecil"
                     doc.append('custom_shipping_packaging',{

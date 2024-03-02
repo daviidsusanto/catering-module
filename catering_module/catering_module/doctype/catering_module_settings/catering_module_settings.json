@@ -11,7 +11,9 @@
   "gudang_item_reserved_for_manufacturing_portion_quantity",
   "biteship_order_settings_section",
   "shipper_contact_email",
-  "shipper_organization"
+  "shipper_organization",
+  "schedule_delivery_biteship",
+  "schedule_cancel_biteship"
  ],
  "fields": [
   {
@@ -38,12 +40,24 @@
    "fieldname": "shipper_organization",
    "fieldtype": "Data",
    "label": "Shipper Organization"
+  },
+  {
+   "description": "in minutes",
+   "fieldname": "schedule_delivery_biteship",
+   "fieldtype": "Int",
+   "label": "Schedule Delivery Biteship"
+  },
+  {
+   "description": "in minutes",
+   "fieldname": "schedule_cancel_biteship",
+   "fieldtype": "Int",
+   "label": "Schedule Cancel Biteship"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-09-26 11:47:12.895732",
+ "modified": "2024-02-18 06:02:14.492020",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "Catering Module Settings",
