@@ -790,7 +790,7 @@ def get_packaging_type(vehicle_type, total_shipping_point, tumpeng=None, tampah=
                                 temp_o = temp_b % max_packaging_masterbox_kecil
                                 if temp_o >= 7:
                                     result["packaging_masterbox_kecil"] += 1
-                                elif temp_o < 7:
+                                elif temp_o != 0 and temp_o < 7:
                                     result["packaging_plastik_kecil"] = 1
                     elif temp_b != 0 and temp_b < 7:
                         result["packaging_plastik_kecil"] = 1
