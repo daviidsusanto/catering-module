@@ -3,7 +3,7 @@ import requests
 import random
 import string
 import json
-from math import floor
+from math import floor, ceil
 from itertools import groupby
 
 from catering_module.public.biteship_api import base_api
@@ -780,13 +780,13 @@ def get_packaging_type(vehicle_type, total_shipping_point, tumpeng=None, tampah=
             if max_packaging_masterbox_besar:
                 temp_c = total_shipping_point/max_packaging_masterbox_besar
                 result["packaging_masterbox_besar"] += floor(temp_c)
-                if result["packaging_masterbox_besar"] != 0:
+                if result["packaging_masterbox_besar"] != 0 or temp_c != 0:
                     temp_b = total_shipping_point % max_packaging_masterbox_besar
                     if temp_b >= 7:
                         if max_packaging_masterbox_kecil:
                             temp_a = temp_b/max_packaging_masterbox_kecil
                             result["packaging_masterbox_kecil"] += floor(temp_a)
-                            if result["packaging_masterbox_kecil"] != 0:
+                            if result["packaging_masterbox_kecil"] != 0 or temp_a != 0:
                                 temp_o = temp_b % max_packaging_masterbox_kecil
                                 if temp_o >= 7:
                                     result["packaging_masterbox_kecil"] += 1
@@ -815,7 +815,7 @@ def get_packaging_type(vehicle_type, total_shipping_point, tumpeng=None, tampah=
         if total_shipping_point >= 81 and total_shipping_point <= 240:
             temp_b = total_shipping_point/max_packaging_masterbox_kecil
             result["packaging_masterbox_kecil"] += floor(temp_b)
-            if result["packaging_masterbox_kecil"] != 0:
+            if result["packaging_masterbox_kecil"] != 0 or temp_b != 0:
                 temp_a = total_shipping_point % max_packaging_masterbox_kecil
                 if temp_a >= 7:
                     result["packaging_masterbox_kecil"] += 1
@@ -824,7 +824,7 @@ def get_packaging_type(vehicle_type, total_shipping_point, tumpeng=None, tampah=
             else:
                 temp_a = total_shipping_point/max_packaging_plastik_kecil
                 result["packaging_plastik_kecil"] = floor(temp_a)
-                if result["packaging_plastik_kecil"] != 0:
+                if result["packaging_plastik_kecil"] != 0 or temp_a != 0:
                     temp_o = total_shipping_point % max_packaging_plastik_kecil
                     if temp_o != 0:
                         result["packaging_plastik_kecil"] += 1
@@ -841,7 +841,7 @@ def get_packaging_type(vehicle_type, total_shipping_point, tumpeng=None, tampah=
         if total_shipping_point >= 241 and total_shipping_point <= 1512:
             temp_b = total_shipping_point / max_packaging_masterbox_kecil
             result["packaging_masterbox_kecil"] = floor(temp_b)
-            if result["packaging_masterbox_kecil"] != 0:
+            if result["packaging_masterbox_kecil"] != 0 or temp_b != 0:
                 temp_a = total_shipping_point % max_packaging_masterbox_kecil
                 if temp_a >= 7:
                     result["packaging_masterbox_kecil"] += 1
@@ -850,9 +850,10 @@ def get_packaging_type(vehicle_type, total_shipping_point, tumpeng=None, tampah=
             else:
                 temp_a = total_shipping_point / max_packaging_plastik_kecil
                 result["packaging_plastik_kecil"] = floor(temp_a)
-                if result["packaging_plastik_kecil"] != 0:
+                if result["packaging_plastik_kecil"] != 0 or temp_a != 0:
                     temp_o = total_shipping_point % max_packaging_plastik_kecil
                     if temp_o != 0:
                         result["packaging_plastik_kecil"] += 1
 
+    print(result)
     return result
