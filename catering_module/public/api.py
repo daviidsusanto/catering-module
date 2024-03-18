@@ -857,3 +857,19 @@ def get_packaging_type(vehicle_type, total_shipping_point, tumpeng=None, tampah=
 
     print(result)
     return result
+
+@frappe.whitelist()
+def update_pick_list_status(pick_list,status):
+    get_pick_list = frappe.get_doc("Catering Pick List",pick_list)
+    if get_pick_list:
+        get_pick_list.delivery_status = status
+        get_pick_list.save()
+        frappe.response["code"] = 200
+        frappe.response["http_status_code"] = 200
+        frappe.response["message"] = "Success"
+        frappe.response["data"] = get_pick_list
+    else:
+        frappe.response["code"] = 404
+        frappe.response["http_status_code"] = 404
+        frappe.response["message"] = "Pick List Not Found"
+        frappe.response["data"] = None
