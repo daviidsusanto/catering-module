@@ -19,6 +19,7 @@
   "whatsapp_url",
   "template_id",
   "template_id_order",
+  "template_delay_order",
   "active_2",
   "promotion_program_api_section",
   "oauth_url_promotion",
@@ -165,12 +166,17 @@
    "fieldname": "template_id_order",
    "fieldtype": "Data",
    "label": "Template ID Order"
+  },
+  {
+   "fieldname": "template_delay_order",
+   "fieldtype": "Data",
+   "label": "Template Delay Order"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-09-09 16:32:55.019228",
+ "modified": "2024-03-24 15:52:07.413250",
  "modified_by": "Administrator",
  "module": "Catering Module",
  "name": "API Setup",

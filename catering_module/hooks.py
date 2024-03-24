@@ -137,9 +137,9 @@ doc_events = {
 	"Purchase Order": {
 		"on_submit": "catering_module.public.purchase_order_addon.send_whatsapp_notif_to_supplier",
 	},
-	"Pick List": {
+	"Catering Pick List": {
 		# "validate": "catering_module.public.pick_list_addon.get_barcode_from_so",
-		"validate": "catering_module.public.pick_list_addon.order_now"
+		"on_update_after_submit": "catering_module.public.pick_list_addon.order_now"
 	}
 }
 
@@ -166,18 +166,24 @@ doc_events = {
 # }
 
 scheduler_events = {
+    # "cron": {
+    #     "00 01 * * *": [
+    #         "catering_module.public.biteship_api.enqueue_schedule_orders"
+    #     ],
+    #     "00 02 * * *": [
+    #         "catering_module.public.biteship_api.enqueue_schedule_orders"
+    #     ],
+    #     "00 03 * * *": [
+    #         "catering_module.public.biteship_api.enqueue_schedule_orders"
+    #     ],
+	# 	"*/55 * * * *": [
+    #         "catering_module.public.biteship_api.enqueue_schedule_orders",
+    #         "catering_module.public.biteship_api.enqueue_late_delivery",
+    #     ]
+    # }
     "cron": {
-        "00 01 * * *": [
-            "catering_module.public.biteship_api.enqueue_schedule_orders"
-        ],
-        "00 02 * * *": [
-            "catering_module.public.biteship_api.enqueue_schedule_orders"
-        ],
-        "00 03 * * *": [
-            "catering_module.public.biteship_api.enqueue_schedule_orders"
-        ],
-		"*/5 * * * *": [
-            "catering_module.public.biteship_api.enqueue_schedule_orders"
+		"*/55 * * * *": [
+            "catering_module.public.biteship_api.enqueue_orders",
         ]
     }
 }
