@@ -11,10 +11,10 @@ from .biteship_api import *
 def order_now(doc, name):
     logger = frappe.logger("order_now", allow_site=True, file_count=100)
     res = {}
-    if doc.status == "Delivered":
-        for item in doc.locations:
+    if doc.delivery_status == "Delivered":
+        for item in doc.sales_order_pick_list:
             so = frappe.get_doc("Sales Order", item.sales_order)
-            if so.custom_courier_status == "Deleted":
+            if so.custom_courier_status == "Delay" and not so.order_id:
                 url = "/v1/orders"
                 items = []
                 for item in so.items:
@@ -63,6 +63,7 @@ def order_now(doc, name):
                 }
                 logger.info("so_name: {}-{}".format(so.name, data))
                 res = base_api(url, 'POST', json.dumps(data, default=defaultconverter))
+                print(res)
                 logger.info("res: {}".format(res))
                 if res.get('success'):
                     so.db_set('order_id', res.get('id'), update_modified=False, notify=True, commit=True)
