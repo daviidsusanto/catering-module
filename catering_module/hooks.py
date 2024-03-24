@@ -166,21 +166,6 @@ doc_events = {
 # }
 
 scheduler_events = {
-    # "cron": {
-    #     "00 01 * * *": [
-    #         "catering_module.public.biteship_api.enqueue_schedule_orders"
-    #     ],
-    #     "00 02 * * *": [
-    #         "catering_module.public.biteship_api.enqueue_schedule_orders"
-    #     ],
-    #     "00 03 * * *": [
-    #         "catering_module.public.biteship_api.enqueue_schedule_orders"
-    #     ],
-	# 	"*/55 * * * *": [
-    #         "catering_module.public.biteship_api.enqueue_schedule_orders",
-    #         "catering_module.public.biteship_api.enqueue_late_delivery",
-    #     ]
-    # }
     "cron": {
 		"*/55 * * * *": [
             "catering_module.public.biteship_api.enqueue_orders",
