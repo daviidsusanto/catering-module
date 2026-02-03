@@ -29,7 +29,7 @@ def get_oauth():
 
 def send_whatsapp_notif_to_supplier(doc,name):
     setup = frappe.get_doc("API Setup")
-    if not setup.oauth_url or not setup.client_id or not setup.client_secret or not setup.grant_type or not setup.active_2:
+    if not setup.oauth_url or not setup.client_id or not setup.client_secret or not setup.grant_type:
         frappe.throw("API Setup is not set or inactive.")
         
     if setup.active_2:
